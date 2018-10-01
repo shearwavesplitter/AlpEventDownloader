@@ -1,6 +1,17 @@
 # AlpEventDownloader
 
-## Requires python2.7
+## Requires python version 2.7
+
+## About
+
+This script/functions act as a wrapper for the new fdsnws downloader which is replacing arclink_fetch. 
+
+###Advantages
+* Allows restricted data to be downloaded
+* Creates lists of events/stations where the download has failed or the data is incomplete/missing
+* Downloaded events are written straight to .sac files and contain all important event and station information
+* If the script is interrupted it can continue where it left off
+* Failed events can be re-attempted
 
 ## Installation
 
@@ -16,6 +27,20 @@ pip install fdsnwsscripts
 2. Create a working directory
 3. Update the "main parameters" in download_events_script.py
 4. Run the script
+
+## Output
+* .sac files for each event sorted either by event name or by station
+* "missing_stations" .csv file which contains stations that are not available for any event
+* "missing_events" .csv file which contains the columns 
+ 1. Event ID
+ 2. Station
+ 3. Network
+ 4. Channel (BH or HH)
+ 5. Comment
+  * "no_data" if there is no data available
+  * "missing_val" if some of the trace is missing
+  * "epi_dist" if the epicentral distance is outside the allowed band
+* "completed_events" .csv contains the station, network, and component for events that have been succesfully downloaded
 
 ## Optional modes:
 
