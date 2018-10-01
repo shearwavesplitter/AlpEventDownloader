@@ -8,7 +8,7 @@
 pip install fdsnwsscripts
 ```
 
-## [https://github.com/shearwavesplitter/AlpEventDownloader/issues](Bug Reports)
+## [Bug Reports](https://github.com/shearwavesplitter/AlpEventDownloader/issues)
 
 ## How to run
 
@@ -19,14 +19,14 @@ pip install fdsnwsscripts
 
 ## Optional modes:
 
-*continue
- *Do not re-attempt any already attempted files 
+**continue**
+ * Do not re-attempt any already attempted files 
 
-*all
- *Redownload everything
+**all**
+ * Redownload everything
 
-*retry
- *Only re-attempted failed downloads
+**retry**
+ * Only re-attempted failed downloads
 
 ## .csv format
 
@@ -42,17 +42,17 @@ pip install fdsnwsscripts
   2. network (if not included defaults to _ALPARRAY)
 
 ## File contents
-dowload_events_functions.py
- *The workhorse functions used for download
+**dowload_events_functions.py**
+ * The workhorse functions used for download
 
-download_events_script.py
- *The script for downloading events
+**download_events_script.py**
+ * The script for downloading events
 
-example_events.csv
- *Example of the events .csv file
+**example_events.csv**
+ * Example of the events .csv file
 
-example_stations.csv
- *Example of the stations .csv file
+**example_stations.csv**
+ * Example of the stations .csv file
 
 ## Details
 
@@ -68,4 +68,4 @@ example_stations.csv
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
 
 ## To do
-* Set up downloading of restricted data
+* Include instructions for downloading restricted data
