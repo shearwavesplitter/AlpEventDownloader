@@ -1,0 +1,5 @@
+time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
+2017-08-11T05:28:25.790Z,14.0065,120.7391,172,6.2,mww,,17,0.214,0.81,us,us2000a77i,2017-10-25T00:38:08.040Z,"1km SE of Tuy, Philippines",earthquake,6.6,1.9,0.045,47,reviewed,us,us
+2017-09-08T04:49:19.180Z,15.0222,-93.8993,47.39,8.2,mww,,22,0.944,1.22,us,us2000ahv0,2018-01-28T01:12:57.028Z,"101km SSW of Tres Picos, Mexico",earthquake,6.2,3.7,0.058,29,reviewed,us,us
+2017-09-20T20:09:49.610Z,-18.7854,169.0946,197,6.4,mww,,18,2.641,0.99,us,us2000as2f,2017-12-19T01:54:09.040Z,"86km NNW of Isangel, Vanuatu",earthquake,7.6,1.9,0.05,39,reviewed,us,us
+2017-10-24T10:47:47.860Z,-7.2168,123.0735,553.81,6.7,mww,,16,1.634,0.97,us,us1000aw8q,2018-01-17T21:50:32.040Z,"144km NNE of Palue, Indonesia",earthquake,8.6,3.1,0.046,46,reviewed,us,us
