@@ -4,7 +4,7 @@
 
 ## About
 
-This script/functions act as a wrapper for the new fdsnws downloader which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
+This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
 ### Advantages
 * Allows restricted data to be downloaded
@@ -13,13 +13,20 @@ This script/functions act as a wrapper for the new fdsnws downloader which is re
 * If the script is interrupted it can continue where it left off
 * Failed events can be re-attempted
 
+## [Bug Reports](https://github.com/shearwavesplitter/AlpEventDownloader/issues)
+
 ## Installation
 
 ```python
 pip install fdsnwsscripts
 ```
 
-## [Bug Reports](https://github.com/shearwavesplitter/AlpEventDownloader/issues)
+## Restricted data (Z3 etc.)
+1. Get an invite from the Alparray group
+2. Register in B2ACCESS
+3. Request a token [here](https://geofon.gfz-potsdam.de/eas/)
+4. Save the token in ~/.eidatoken (create the hidden folder if needed)
+5. fdsnws_fetch will automatically read the token
 
 ## How to run
 
@@ -51,7 +58,7 @@ pip install fdsnwsscripts
  * Redownload everything
 
 **retry**
- * Only re-attempted failed downloads
+ * Only re-attempted failed downloads (not yet implemented) 
 
 ## .csv format
 
