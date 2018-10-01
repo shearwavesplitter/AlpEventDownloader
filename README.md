@@ -4,9 +4,9 @@
 
 ## About
 
-This script/functions act as a wrapper for the new fdsnws downloader which is replacing arclink_fetch. 
+This script/functions act as a wrapper for the new fdsnws downloader which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
-###Advantages
+### Advantages
 * Allows restricted data to be downloaded
 * Creates lists of events/stations where the download has failed or the data is incomplete/missing
 * Downloaded events are written straight to .sac files and contain all important event and station information
