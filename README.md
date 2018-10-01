@@ -41,14 +41,14 @@ pip install fdsnwsscripts
 * .sac files for each event sorted either by event name or by station
 * "missing_stations" .csv file which contains stations that are not available for any event
 * "missing_events" .csv file which contains the columns 
- 1. Event ID
- 2. Station
- 3. Network
- 4. Channel (BH or HH)
- 5. Comment
-  * "no_data" if there is no data available
-  * "missing_val" if some of the trace is missing
-  * "epi_dist" if the epicentral distance is outside the allowed band
+  1. Event ID
+  2. Station
+  3. Network
+  4. Channel (BH or HH)
+  5. Comment
+    * "no_data" if there is no data available
+    * "missing_val" if some of the trace is missing
+    * "epi_dist" if the epicentral distance is outside the allowed band
 * "completed_events" .csv contains the station, network, and component for events that have been succesfully downloaded
 
 ## Optional modes:
@@ -102,4 +102,5 @@ pip install fdsnwsscripts
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
 
 ## To do
-* Include instructions for downloading restricted data
+* Include instructions for getting token for restricted data access
+* Implement "retry" mode
