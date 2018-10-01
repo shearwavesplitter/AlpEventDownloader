@@ -91,12 +91,5 @@ for st in np.arange(len(stations)):
 ##
 execfile(wd+"dowload_events_functions.py")
 
-comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="all")
+comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode)
 
-
-
-
-
-
-
-os.remove(wd+"req.txt")

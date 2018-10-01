@@ -6,14 +6,16 @@
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
+Not all datacentres have implemented fdsnws_fetch however this should be very close (only weeks if not already).
+
 ### Advantages
 * Allows restricted data to be downloaded
 * Creates lists of events/stations where the download has failed or the data is incomplete/missing
 * Downloaded events are written straight to .sac files and contain all important event and station information
 * If the script is interrupted it can continue where it left off
-* Failed events can be re-attempted
+* Failed events can be re-attempted (not yet implemented)
 
-## [Bug Reports](https://github.com/shearwavesplitter/AlpEventDownloader/issues)
+## [Bug reports and suggestions](https://github.com/shearwavesplitter/AlpEventDownloader/issues)
 
 ## Installation
 
