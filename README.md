@@ -30,16 +30,16 @@ Only re-attempted failed downloads
 
 ## .csv format
 
-1. Event .csv requires columns with the titles (not including the description in brackets):
-⋅⋅1. time (obspy readable format)
-⋅⋅2. latitude
-⋅⋅3. longitude
-⋅⋅4. depth (km)
-⋅⋅5. mag (magnitude)
-⋅⋅6. id (unique event identifier)
-2. Station .csv requires columns with the titles (not including the description in brackets):
-⋅⋅1. station (station name)
-⋅⋅2. network (if not included defaults to _ALPARRAY)
+* Event .csv requires columns with the titles (not including the description in brackets):
+  1. time (obspy readable format)
+  2. latitude
+  3. longitude
+  4. depth (km)
+  5. mag (magnitude)
+  6. id (unique event identifier)
+* Station .csv requires columns with the titles (not including the description in brackets):
+  1. station (station name)
+  2. network (if not included defaults to _ALPARRAY)
 
 ## File contents
 
@@ -68,11 +68,9 @@ Example of the stations .csv file
 5. Applies broad bandpass filter and then detrends
 6. Writes out sac files for each event including header information
 
-#
-
 ## Potential pitfalls
-⋅⋅* There currently may be problems if there are different stations with the same name
-⋅⋅* Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
+* There currently may be problems if there are different stations with the same name
+* Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
 
 ## to do
-⋅⋅* Set up downloading of restricted data
+* Set up downloading of restricted data
