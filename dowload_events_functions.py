@@ -79,6 +79,8 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
     if mode == "all":
         print("New download...")
     if mode == "continue":
+        file = open(wd+"missing_stations","a+")
+        file.close()
         skip=[]
         with open(wd+"missing_stations", 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='"')
@@ -333,7 +335,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
     for evl in evmat:
         substations=stations
         subnet=networks
-        if mode == "continue":
+        if mode == "continue" and len(skip) > 0:
             subskip=np.asarray([x for x in skip if x[0] == evl[0] and (x[3] == "HH" or x[4] == "completed" or x[4] == "epi_dist")])
             subnet=[networks[x] for x in np.arange(len(substations)) if substations[x] not in subskip[:,1]]
             substations=[x for x in substations if x not in subskip[:,1]]
@@ -411,8 +413,8 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
             rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi)[0]
             new_missing_list.append(rtt)
 
-    failure_list = [x for x in new_missing_list if not x == 'completed']
-    completed_list = [x for x in new_missing_list if x == 'completed']
+    failure_list = [x for x in new_missing_list if not x[4] == 'completed']
+    completed_list = [x for x in new_missing_list if x[4] == 'completed']
 
     file = open(wd+"missing_events","w") 
     for l in failure_list:

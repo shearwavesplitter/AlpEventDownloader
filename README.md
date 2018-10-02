@@ -68,9 +68,10 @@ Misc. packages (should be included with standard obspy installation)
 
 **continue**
  * Do not re-attempt any already attempted files 
+ * Recommended (will start from scratch like "all" of no .csv files exist)
 
 **retry**
- *Re-attempt to download failed events
+ * Re-attempt to download failed events
 
 ## .csv format
 
@@ -115,6 +116,7 @@ Misc. packages (should be included with standard obspy installation)
 
 ## Potential pitfalls
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
+* "missing_val" functionality hasn't been tested"
 
 ## To do
 * Include instructions for getting token for restricted data access
