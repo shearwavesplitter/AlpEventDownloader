@@ -4,7 +4,10 @@
 #############Main parameters
 
 #Working directory where data will be saved (requires the trailing "/")
-wd='/data/home/mroczek/Dropbox/alpevent/'
+wd='/data/home/mroczek/alpevent/'
+
+#Directory containing the functions document
+fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
 
 #Path to the events csv file
 eventcsv=wd+'Q1-31.csv'
@@ -39,13 +42,14 @@ flo=0.03
 #Earth model for predicting P-wave travel time (see obspy for options)
 model="iasp91" 
 
-#Mode for running; options include "all" for everything or"continue" to continue
+#Mode for running; options include "all" to download everything, "continue" to continue, or "retry" to retry failed events
 mode="continue"
+
 
 
 ###########
 ##Source functions
-execfile("/data/home/mroczek/Dropbox/AlpEventDownloader/dowload_events_functions.py")
+execfile(fd)
 ###Read events csv
 ##
 evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag)
@@ -62,6 +66,3 @@ inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=
 comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model)
 ##
 
-###Re-attempt failed downloads (can be run seperately)
-#evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag)
-#comp2,fail2=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model)

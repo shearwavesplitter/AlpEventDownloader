@@ -44,15 +44,8 @@ Misc. packages (should be included with standard obspy installation)
 
 1. Create the event and station .csv files with the proper columns
 2. Create a working directory
-3. Update the "main parameters" in download_events_script.py
-4. Run the script
-
-### Re-attempt failed events
-
-This can be run completely seperately from the main downloading routines. CSVs are updated automatically if any new events are successful. 
-1. Input the main parameters
-2. Source the functions
-3. Run lines 66 and 67 (commented out by default)
+3. Update the "main parameters" and paths in download_events_script.py 
+4. Run the script download_events_script.py 
 
 ## Output
 * .sac files for each event sorted either by event name or by station
@@ -70,11 +63,14 @@ This can be run completely seperately from the main downloading routines. CSVs a
 
 ## Optional modes:
 
+**all**
+ * Redownload everything
+
 **continue**
  * Do not re-attempt any already attempted files 
 
-**all**
- * Redownload everything
+**retry**
+ *Re-attempt to download failed events
 
 ## .csv format
 
@@ -103,9 +99,6 @@ This can be run completely seperately from the main downloading routines. CSVs a
  * Example of the stations .csv file
 
 ## Details
-
-### dl_BH_HH
-
 1. Requests all BH* data from all stations for a single event
 2. Individually Re-requests BH* data for all stations with missing or incomplete BH* data
 3. Requests all HH* data for stations with missing or incomplete BH* data
@@ -113,7 +106,7 @@ This can be run completely seperately from the main downloading routines. CSVs a
 5. Applies broad bandpass filter and then detrends
 6. Writes out sac files for each event including header information
 
-### retry_download
+### retry mode
 
 1. Stations from "missing_stations" are reattempted for all events
 2. Events/stations from "missing_events" are attempted for BH (except those outside of the epicentral distance band)

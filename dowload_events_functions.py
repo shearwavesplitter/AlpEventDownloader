@@ -74,6 +74,8 @@ def read_stationcsv(path,defaultnet="_ALPARRAY"):
 
 ####Read station metadata
 def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="continue",write=True):
+    if mode == "retry":
+        return([],[],[],[])
     if mode == "all":
         print("New download...")
     if mode == "continue":
@@ -305,6 +307,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
 
 
 def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",flo=0.03,fhi=2,mode="continue"):
+    if mode == "retry":
+        evtimes=np.asarray([x[1] for x in evmat])
+        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model)
+        return(completed_list,failure_list)
     if mode == "all":
         print("Downloading all events...")
     if not os.path.exists(wd+"/data"):
