@@ -23,7 +23,7 @@ Not all datacentres have implemented fdsnws_fetch however this should be very cl
 pip install fdsnwsscripts
 ```
 
-###Other Requirements
+### Other requirements
 * obspy v1.1
 
 Misc. packages (should be included with standard obspy installation)
