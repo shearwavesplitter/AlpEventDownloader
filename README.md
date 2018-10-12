@@ -83,7 +83,7 @@ Misc. packages (should be included with standard obspy installation)
   5. mag (magnitude)
   6. id (unique event identifier)
 * Station .csv requires columns with the titles (not including the description in brackets):
-  1. station (station name)
+  1. station (station name) - This can be a "*" to download from all stations
   2. network (if not included defaults to _ALPARRAY)
 
 ## File contents

@@ -12,7 +12,7 @@ fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
 #Path to the events csv file
 eventcsv=wd+'Q1-31.csv'
 
-#Path to the events csv file
+#Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
 stationcsv=wd+'stations.csv'
 
 #minimum magnitude (events below this value will be completely ignored)
@@ -56,6 +56,10 @@ evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag)
 
 ###Read stations csv
 stations,networks=read_stationcsv(stationcsv)
+##
+
+###Populate * wild card
+stations,networks=populate(stations,networks,evtimes)
 ##
 
 ###Read station metadata

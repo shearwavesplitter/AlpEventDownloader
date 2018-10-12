@@ -72,6 +72,23 @@ def read_stationcsv(path,defaultnet="_ALPARRAY"):
     return(stations,networks)
 
 
+#####Populate wildcard
+def populate(stations,networks,evtimes,routername="eida-routing"):
+    outstations=[]
+    outnetworks=[]
+    client = RoutingClient(routername)
+    for i in np.arange(len(stations)):
+        if stations[i] == "*":
+            inv=client.get_stations(network=networks[0], station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station")
+            for net in inv:
+                for stat in net:
+                    outstations.append(stat.code)
+                    outnetworks.append(net.code)
+        else:
+            outstations.append(stations[i])
+            outnetworks.append(networks[i])
+    return(outstations,outnetworks)
+
 ####Read station metadata
 def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="continue",write=True):
     if mode == "retry":
