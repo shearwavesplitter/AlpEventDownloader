@@ -35,10 +35,16 @@ Misc. packages (should be included with standard obspy installation)
 
 ## Restricted data (Z3 etc.)
 1. Get an invite from the Alparray group
-2. Register in B2ACCESS
-3. Request a token [here](https://geofon.gfz-potsdam.de/eas/)
-4. Save the token in ~/.eidatoken (create the hidden folder if needed)
-5. fdsnws_fetch will automatically read the token
+2. Visit [here](https://geofon.gfz-potsdam.de/eas/) and request a token 
+3. You will be asked to log in. If you haven't registered yet select "Register a new account"
+4. Select "Create B2ACCESS account (username only)"
+5. Fill in your details selecting "EPOS" under "Apply for membership"
+6. Request to be added to AlpArray by an administrator
+7. Return to [here](https://geofon.gfz-potsdam.de/eas/), log in, and request the token
+8. Save the token in ~/.eidatoken 
+9. fdsnws_fetch will automatically read the token
+
+### Not yet fully implemented
 
 ## How to run
 
@@ -117,6 +123,3 @@ Misc. packages (should be included with standard obspy installation)
 ## Potential pitfalls
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
 * "missing_val" functionality hasn't been tested
-
-## To do
-* Include instructions for getting token for restricted data access

@@ -1,5 +1,9 @@
 #!/usr/bin/env python2.7
-
+#Requires fdsnwsscripts (pip install fdsnwsscripts)
+#Create a working directory
+#Update paths
+#Run script
+#View readme for further instructions
 
 #############Main parameters
 
@@ -10,10 +14,10 @@ wd='/data/home/mroczek/alpevent/'
 fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
 
 #Path to the events csv file
-eventcsv=wd+'Q1-31.csv'
+eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
 
 #Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
-stationcsv=wd+'stations.csv'
+stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
 
 #minimum magnitude (events below this value will be completely ignored)
 minmag=5 
