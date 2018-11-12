@@ -26,9 +26,11 @@ pip install fdsnwsscripts
 ```
 
 ### For arclink_fetch backend 
-Open your preferred python enviroment
 [Download the standalone client from here](https://www.seiscomp3.org/download.html)
-e.g. installation for Ubuntu
+
+Open your preferred python enviroment (so arclink_fetch is installed where you will be using python)
+
+Install. e.g. for Ubuntu:
 ```bash
 sudo dpkg -i ~/arclinkfetch_2015.300_all.deb 
 sudo apt-get install -f
@@ -100,7 +102,7 @@ Misc. packages (should be included with standard obspy installation)
   3. longitude
   4. depth (km)
   5. mag (magnitude)
-  6. id (unique event identifier) - Not required unless you want to define your own event names
+  6. (optional) id (unique event identifier) - Not required unless you want to define your own event names
 * Station .csv requires columns with the titles (not including the description in brackets):
   1. station (station name) - This can be a "*" to download from all stations
   2. network (if not included defaults to _ALPARRAY)
