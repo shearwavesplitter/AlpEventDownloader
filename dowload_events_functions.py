@@ -8,11 +8,12 @@ import os
 from obspy.clients.fdsn import RoutingClient
 from obspy.core import read
 from obspy.geodetics import locations2degrees
+from obspy.geodetics import gps2dist_azimuth
 from obspy.taup import TauPyModel
 from obspy import read_inventory
 from obspy.io.sac import SACTrace
 import time
-
+from obspy.signal import rotate 
 ###Paste function for creating .csv
 def pasteR(vector,sep=" "):
     s=str(vector[0])
@@ -22,7 +23,7 @@ def pasteR(vector,sep=" "):
     return(s)
 
 #####Read event csv
-def read_eventcsv(path,minmag=5.5):
+def read_eventcsv(path,minmag=5.5,cnames=True):
     with open(path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         rs=[x for x in reader]
@@ -36,17 +37,37 @@ def read_eventcsv(path,minmag=5.5):
         idind=np.arange(len(rs[0]))[nrs[0] == "id"][0]
     except IndexError:
         raise ValueError("Required event column missing or mislabelled")
+    if not cnames:
+        try:
+            idind=np.arange(len(rs[0]))[nrs[0] == "id"][0]
+        except IndexError:
+            raise ValueError("id event column missing or mislabelled. Set cnames=True")
 
     evtimes=np.asarray([UTCDateTime(x[tind]) for x in nrs[1:]])
     lats=np.asarray([float(x[latind]) for x in nrs[1:]])
     lons=np.asarray([float(x[lonind]) for x in nrs[1:]])
     dps=np.asarray([float(x[dind]) for x in nrs[1:]])
     mags=np.asarray([float(x[magind]) for x in nrs[1:]])
-    ids=np.asarray([x[idind] for x in nrs[1:]])
+    if cnames:
+        ids=[]
+        for j in np.arange(len(evtimes)):
+            jday=("00"+str(evtimes[j].julday))[-3:]
+            hr=("0"+str(evtimes[j].hour))[-2:]
+            mn=("0"+str(evtimes[j].minute))[-2:]
+            sec=("0"+str(evtimes[j].second))[-2:]
+            line=pasteR([str(evtimes[j].year),jday,hr,mn,sec],sep=".")
+            ids.append(line)
+            
+    else:
+        ids=np.asarray([x[idind] for x in nrs[1:]])
 
     evmat=np.column_stack((ids,evtimes,lats,lons,dps,mags))
 
     evmat=evmat[evmat[:,5] >= minmag]
+    
+    ids=np.asarray(ids)
+    if not len(ids) == len(np.unique(ids)):
+        raise  ValueError("IDs are not unique")
     return(evmat,evtimes)
 
 #######Read station csv
@@ -145,7 +166,7 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
 
 ##Main download function
 
-def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",flo=0.03,fhi=2):
+def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT"):
     model = TauPyModel(model=mod)
     failure=[]
     failure3=[]
@@ -166,6 +187,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             slat=subinv[0][0].latitude
             slon=subinv[0][0].longitude
             epi=locations2degrees(lat,lon,slat,slon)
+            baz=gps2dist_azimuth(slat,slon,lat,lon)[1]
             if epi < minepi or epi > maxepi:
                 failure.append([id,stations[j],networks[j],component,"epi_dist"])
                 episkip=True
@@ -176,8 +198,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failure.append([id,stations[j],networks[j],component,"no_data"])
         else:
             if not (epi < minepi or epi > maxepi):
-                ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=["P"])
+                ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=[phase])
                 ptrav=ptime[0].time
+                inc=ptime[0].incident_angle
                 wstart=t+ptrav+ws
                 wend=t+ptrav+we
                 run.append([id,stat,net,wstart,wend,ptrav])
@@ -193,7 +216,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
         failure2=[]
         rstats=[x[1] for x in run]
         rnets=[x[2] for x in run]
-        cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+        if fdsn:
+            cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+        else:
+            cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
         os.system(cmd)
         fsize=os.path.getsize(wd+reqname+".mseed")
         if fsize == 0:
@@ -220,10 +246,30 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 ett=runline2[4]
                 a=ws*-1
                 o=a-runline2[5]
+                if downsample:
+                    for trz in subms:
+                        srate=trz.stats['sampling_rate']
+                        if srate > 20:
+                            fac=srate/20
+                            intfac=int(fac)
+                            if intfac == fac:
+                                trz.decimate(intfac)
+                            else:
+                                trz=resample(20,no_filter=False)
                 subms.trim(starttime=stt,endtime=ett)
-                subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
+                subms._trim_common_channels()
+                if not rotrt == None:
+                    try:
+                        subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                    except ValueError:
+                        zstart=subms[0].stats.starttime
+                        subms[1].stats.starttime=zstart
+                        subms[2].stats.starttime=zstart
+                        subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                if not (flo == None or fhi == None):
+                    subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
                 subms.detrend()
-                ts=[True for x in subms if x.stats.npts < (ws-we)*x.stats.sampling_rate]
+                ts=[True for x in subms if x.stats.npts < .9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:
                     failure2.append([id,subst,nets[l],component,"missing_vals"])
@@ -231,18 +277,22 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     if sum(nan) > 0:
                         failure2.append([id,subst,nets[l],component,"missing_vals"])
                 if sortby == "event":
-                    wp=wd+"data/"+id+"/"
+                    wp=wd+"data/"+phase+"_"+id+"/"
                 if sortby == "station":
-                    wp=wd+"data/"+subst+"/"
+                    wp=wd+"data/"+phase+"_"+nets[l]+"."+subst+"/"
                 if not os.path.exists(wp):
                     os.makedirs(wp)
                 if len(subms) < 3:
                     failure2.append([id,subst,nets[l],component,"missing_vals"])
                 for tr in subms:
-                    trinv=inv.select(channel=tr.stats.channel,station=tr.stats.station,network=tr.stats.network,time=t)
                     sactr = SACTrace.from_obspy_trace(tr)
-                    sactr.cmpaz=trinv[0][0][0].azimuth
-                    sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                    if not rotrt==None:
+                        trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t)
+                    else:
+                        trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t,channel=tr.stats.channel)
+                    if rotrt == None:
+                        sactr.cmpaz=trinv[0][0][0].azimuth
+                        sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
                     sactr.stla=trinv[0][0].latitude
                     sactr.stlo=trinv[0][0].longitude
                     sactr.evdp=d
@@ -251,9 +301,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.mag=mag
                     sactr.a=a
                     sactr.o=o
+                    sactr.user0=inc
+                    sactr.baz=baz
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0]
-                    sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".sac")
+                    sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
         os.remove(wd+reqname+".mseed")
         os.remove(wd+reqname)
@@ -283,10 +335,30 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 ett=runline2[4]
                 a=ws*-1
                 o=a-runline2[5]
+                if downsample:
+                    for trz in subms:
+                        srate=trz.stats['sampling_rate']
+                        if srate > 20:
+                            fac=srate/20
+                            intfac=int(fac)
+                            if intfac == fac:
+                                trz.decimate(intfac)
+                            else:
+                                trz=resample(20,no_filter=False)
                 subms.trim(starttime=stt,endtime=ett)
-                subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
+                subms._trim_common_channels()
+                if not rotrt == None:
+                    try:
+                        subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                    except ValueError:
+                        zstart=subms[0].stats.starttime
+                        subms[1].stats.starttime=zstart
+                        subms[2].stats.starttime=zstart
+                        subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                if not (flo == None or fhi == None):
+                    subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
                 subms.detrend()
-                ts=[True for x in subms if x.stats.npts < (ws-we)*x.stats.sampling_rate]
+                ts=[True for x in subms if x.stats.npts < 0.9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:
                     failure3.append([id,stat,net,component,"missing_vals"])
@@ -294,18 +366,22 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     if sum(nan) > 0:
                         failure3.append([id,stat,net,component,"missing_vals"])
                 if sortby == "event":
-                    wp=wd+"data/"+id+"/"
+                    wp=wd+"data/"+phase+"_"+id+"/"
                 if sortby == "station":
-                    wp=wd+"data/"+subst+"/"
+                    wp=wd+"data/"+phase+"_"+nets[l]+"."+subst+"/"
                 if not os.path.exists(wp):
                     os.makedirs(wp)
                 if len(subms) < 3:
                     failure3.append([id,stat,net,component,"missing_vals"])
                 for tr in subms:
-                    trinv=inv.select(channel=tr.stats.channel,station=tr.stats.station,network=tr.stats.network,time=t)
+                    if not rotrt==None:
+                        trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t)
+                    else:
+                        trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t,channel=tr.stats.channel)
                     sactr = SACTrace.from_obspy_trace(tr)
-                    sactr.cmpaz=trinv[0][0][0].azimuth
-                    sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                    if rotrt == None:
+                        sactr.cmpaz=trinv[0][0][0].azimuth
+                        sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
                     sactr.stla=trinv[0][0].latitude
                     sactr.stlo=trinv[0][0].longitude
                     sactr.evdp=d
@@ -314,9 +390,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.mag=mag
                     sactr.a=a
                     sactr.o=o
+                    sactr.baz=baz
+                    sactr.user0=inc
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0]
-                    sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".sac")
+                    sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
             os.remove(wd+reqname+".mseed")
             os.remove(wd+reqname)
@@ -325,10 +403,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
     return(failure)
 
 
-def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",flo=0.03,fhi=2,mode="continue"):
+def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT"):
     if mode == "retry":
         evtimes=np.asarray([x[1] for x in evmat])
-        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model)
+        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
         return(completed_list,failure_list)
     if mode == "all":
         print("Downloading all events...")
@@ -356,12 +434,12 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
             subskip=np.asarray([x for x in skip if x[0] == evl[0] and (x[3] == "HH" or x[4] == "completed" or x[4] == "epi_dist")])
             subnet=[networks[x] for x in np.arange(len(substations)) if substations[x] not in subskip[:,1]]
             substations=[x for x in substations if x not in subskip[:,1]]
-        rb=dl_event(evl,wd=wd,stations=substations,networks=subnet,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi)
+        rb=dl_event(evl,wd=wd,stations=substations,networks=subnet,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
         blank=[completed_list.append(x) for x in rb if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rb if not x[4] == "completed"]
         restat=[x[1] for x in rb if x[4] == "no_data" or x[4] == "missing_vals"]
         renet=[x[2] for x in rb if x[4] == "no_data" or x[4] == "missing_vals"]
-        rh=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inv,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi)
+        rh=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inv,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
         blank=[completed_list.append(x) for x in rh if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rh if not x[4] == "completed"]
     if mode == "continue":
@@ -379,7 +457,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
     file.close()
     return(completed_list,failure_list)
 
-def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",flo=0.03,fhi=2):
+def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz"):
     ###Attempt missing stations
     missing=[]
     with open(wd+"missing_stations", 'rb') as csvfile:
@@ -391,7 +469,7 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
     inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode="all")
 
     if len(stations) > 0:
-        comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="continue",mod=model)
+        comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="continue",mod=model,phase=phase,fdsn=fdsn,arclink_token=arclink_token,downsample=downsample,rotrt=rotrt)
 
 ###Attempt missing events
 
@@ -424,10 +502,10 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
         evl=[x for x in evmat if x[0] == line[0]][0]
         restat=[line[1]]
         renet=[line[2]]
-        rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi)[0]
+        rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)[0]
         new_missing_list.append(rt)
         if (rt[4] == 'no_data' or rt[4] == 'missing_vals') and (rt[0]+rt[1]+rt[2]) in HHmerged:
-            rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi)[0]
+            rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)[0]
             new_missing_list.append(rtt)
 
     failure_list = [x for x in new_missing_list if not x[4] == 'completed']
