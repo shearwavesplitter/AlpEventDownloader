@@ -4,7 +4,7 @@
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
-Not all datacentres have implemented fdsnws_fetch however this should be very close (only weeks if not already).
+Not all data centres have implemented fdsnws_fetch however this should be very close (only weeks if not already).
 
 ### Advantages
 * Allows restricted data to be downloaded
@@ -18,7 +18,7 @@ Not all datacentres have implemented fdsnws_fetch however this should be very cl
 ## Installation
 
 ### For fdsn_fetch backend
-Open your preferred python enviroment (requires python 2.7)
+Open your preferred python environment (requires python 2.7)
 ```python
 pip install fdsnwsscripts
 ```
@@ -26,7 +26,7 @@ pip install fdsnwsscripts
 ### For arclink_fetch backend 
 [Download the standalone client from here](https://www.seiscomp3.org/download.html)
 
-Open your preferred python enviroment (so arclink_fetch is installed where you will be using python)
+Open your preferred python environment (so arclink_fetch is installed where you will be using python)
 
 Install. e.g. for Ubuntu:
 ```bash
@@ -78,7 +78,7 @@ Misc. packages (should be included with standard obspy installation)
     * "no_data" if there is no data available
     * "missing_val" if some of the trace is missing
     * "epi_dist" if the epicentral distance is outside the allowed band
-* "completed_events" .csv contains the station, network, and component for events that have been succesfully downloaded
+* "completed_events" .csv contains the station, network, and component for events that have been successfully downloaded
 
 ## Optional modes:
 
@@ -138,7 +138,7 @@ Misc. packages (should be included with standard obspy installation)
 
 
 ## Potential pitfalls
-* ZNE misorentations are **not** corrected for (even if rotated to RT or LQT). Component azimuth and dip information is lost from the sac headers if RT/LQT rotation is performed. This is because many stations have wrong component azimuth/dip information. 
+* ZNE misorientations are **not** corrected for (even if rotated to RT or LQT). Component azimuth and dip information is lost from the sac headers if RT/LQT rotation is performed. This is because many stations have wrong component azimuth/dip information. 
 * "missing_val" functionality hasn't been thoroughly tested
 * An event can be flagged for missing_val but still have data downloaded (e.g. only two of the components)
 * Events are cut so that they are the same length (npts could vary between events).
