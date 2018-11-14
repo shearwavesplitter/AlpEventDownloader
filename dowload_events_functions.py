@@ -130,7 +130,7 @@ def read_stationcsv(path,defaultnet="_ALPARRAY",usestatclient=False):
 
 
 #####Populate wildcard
-def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=False,network=None,minlatitude=-90,minlongitude=-180,maxlatitude=90,maxlongitude=180):
+def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=False,network=None,minlatitude=-90,minlongitude=-180,maxlatitude=90,maxlongitude=180,includeZS=False):
     outstations=[]
     outnetworks=[]
     client = RoutingClient(routername)
@@ -138,19 +138,22 @@ def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=F
         inv=client.get_stations(network=network, station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station",minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
         for net in inv:
             for stat in net:
-                outstations.append(stat.code)
-                outnetworks.append(net.code)
+                if (not net.code == "ZS") or includeZS:
+                    outstations.append(stat.code)
+                    outnetworks.append(net.code)
         return(outstations,outnetworks)
     for i in np.arange(len(stations)):
         if stations[i] == "*":
             inv=client.get_stations(network=networks[0], station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station")
             for net in inv:
                 for stat in net:
-                    outstations.append(stat.code)
-                    outnetworks.append(net.code)
+                    if (not net.code == "ZS") or includeZS:
+                        outstations.append(stat.code)
+                        outnetworks.append(net.code)
         else:
-            outstations.append(stations[i])
-            outnetworks.append(networks[i])
+            if (not net.code == "ZS") or includeZS:
+                outstations.append(stations[i])
+                outnetworks.append(networks[i])
     return(outstations,outnetworks)
 
 ####Read station metadata
@@ -209,7 +212,7 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
 
 ##Main download function
 
-def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT"):
+def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None):
     model = TauPyModel(model=mod)
     failure=[]
     failure3=[]
@@ -262,7 +265,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
         if fdsn:
             cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
         else:
-            cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
+            if dcidpath == None:
+                cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
+            else:
+                cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname+" -w "+dcidpath
         os.system(cmd)
         fsize=os.path.getsize(wd+reqname+".mseed")
         if fsize == 0:
@@ -446,7 +452,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
     return(failure)
 
 
-def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT"):
+def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None):
     if mode == "retry":
         evtimes=np.asarray([x[1] for x in evmat])
         completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
@@ -480,14 +486,18 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         subnet=networks
         if mode == "continue" and len(skip) > 0:
             subskip=np.asarray([x for x in skip if x[0] == evl[0] and (x[3] == "HH" or x[4] == "completed" or x[4] == "epi_dist")])
-            subnet=[networks[x] for x in np.arange(len(substations)) if substations[x] not in subskip[:,1]]
-            substations=[x for x in substations if x not in subskip[:,1]]
-        rb=dl_event(evl,wd=wd,stations=substations,networks=subnet,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
+            if len(subskip) > 0:
+                subnet=[networks[x] for x in np.arange(len(substations)) if substations[x] not in subskip[:,1]]
+                substations=[x for x in substations if x not in subskip[:,1]]
+            else:
+                subnet=[]
+                substations=[]
+        rb=dl_event(evl,wd=wd,stations=substations,networks=subnet,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
         blank=[completed_list.append(x) for x in rb if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rb if not x[4] == "completed"]
         restat=[x[1] for x in rb if x[4] == "no_data" or x[4] == "missing_vals"]
         renet=[x[2] for x in rb if x[4] == "no_data" or x[4] == "missing_vals"]
-        rh=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inv,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
+        rh=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inv,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
         blank=[completed_list.append(x) for x in rh if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rh if not x[4] == "completed"]
         wm="a+"
@@ -502,7 +512,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         file.close()
     return(completed_list,failure_list)
 
-def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz"):
+def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None):
     ###Attempt missing stations
     missing=[]
     with open(wd+"missing_stations", 'rb') as csvfile:
@@ -514,7 +524,7 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
     inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode="all")
 
     if len(stations) > 0:
-        comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="continue",mod=model,phase=phase,fdsn=fdsn,arclink_token=arclink_token,downsample=downsample,rotrt=rotrt)
+        comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="continue",mod=model,phase=phase,fdsn=fdsn,arclink_token=arclink_token,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
 
 ###Attempt missing events
 
@@ -547,10 +557,10 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
         evl=[x for x in evmat if x[0] == line[0]][0]
         restat=[line[1]]
         renet=[line[2]]
-        rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)[0]
+        rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)[0]
         new_missing_list.append(rt)
         if (rt[4] == 'no_data' or rt[4] == 'missing_vals') and (rt[0]+rt[1]+rt[2]) in HHmerged:
-            rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)[0]
+            rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)[0]
             new_missing_list.append(rtt)
 
     failure_list = [x for x in new_missing_list if not x[4] == 'completed']

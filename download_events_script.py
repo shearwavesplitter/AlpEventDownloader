@@ -14,10 +14,12 @@ from obspy import UTCDateTime
 fdsn=False
 
 #arclink_fetch token used for accessing restricted data (used if fdsn=False) or email for other networks (requires dcidpasswords.txt to be set)
-arclink_token="12345_gfz"
+arclink_token="1235_gfz"
+##dcidpasswords location (if data requires decryption
+dcidpath='/data/home/mroczek/dcidpasswords.txt'
 
 #Working directory where data will be saved (requires the trailing "/")
-wd='/data/home/mroczek/alpevent/'
+wd='/media/mroczek/eq_data/ZS/'
 
 #Directory containing the functions document
 fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
@@ -29,7 +31,7 @@ eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
 ##OR using an available catalog
 useclient=True
 cl="USGS"
-starttime=UTCDateTime("2018-11-01")
+starttime=UTCDateTime("2016-01-01")
 endtime=UTCDateTime("2018-12-01")
 ###Create unique event names YYYY.DDD.HH.MM.SS.NW.STA.C.SAC
 cnames=True
@@ -42,10 +44,11 @@ stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
 #Or get stations from EIDA routing client in lat/longbox
 usestatclient=True
 network="_ALPARRAY"
-minlatitude=-90 
+minlatitude=-90
 minlongitude=-180
 maxlatitude=90
 maxlongitude=180
+includeZS=False #Include the ZS network (defaults as part of _ALPARRAY)
 ####################################
 
 
@@ -99,14 +102,14 @@ else:
 
 ###Read events csv
 ##
-evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl)
+evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl,starttime=starttime,endtime=endtime)
 
 ###Read stations csv
 stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
 ##
 
 ###Populate * wild card
-stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
+stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS)
 ##
 
 ###Read station metadata
@@ -114,6 +117,6 @@ inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=
 ##
 
 ###Begin download
-comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
+comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
 ##
 

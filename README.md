@@ -44,6 +44,9 @@ Misc. packages (should be included with standard obspy installation)
 * os
 * time
 
+Other:
+* m2crypto (not required for Z3 but required for ZS)
+
 ## Restricted data (Z3 etc.)
 ### fdsn_fetch (not fully implemented)
 1. Get an invite from the Alparray group
