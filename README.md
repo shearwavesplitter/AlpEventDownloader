@@ -4,7 +4,7 @@
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
-Not all data centres have implemented fdsnws_fetch however this should be very close (only weeks if not already).
+Not all data centres have implemented fdsnws_fetch. Instead the default backend is arclink_fetch.
 
 ### Advantages
 * Allows restricted data to be downloaded

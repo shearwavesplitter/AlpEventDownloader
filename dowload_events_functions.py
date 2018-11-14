@@ -453,6 +453,10 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         return(completed_list,failure_list)
     if mode == "all":
         print("Downloading all events...")
+        file = open(wd+"completed_events","w")
+        file.close()
+        file = open(wd+"missing_events","w")
+        file.close()
     if not os.path.exists(wd+"/data"):
         os.makedirs(wd+"/data")
     if mode == "continue":
@@ -468,9 +472,10 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         with open(wd+"missing_events", 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='"')
             ss=[skip.append(x) for x in reader]
-    completed_list=[]
-    failure_list=[]
+
     for evl in evmat:
+        completed_list=[]
+        failure_list=[]
         substations=stations
         subnet=networks
         if mode == "continue" and len(skip) > 0:
@@ -485,19 +490,16 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         rh=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inv,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
         blank=[completed_list.append(x) for x in rh if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rh if not x[4] == "completed"]
-    if mode == "continue":
         wm="a+"
-    else:
-        wm="w"
-    file = open(wd+"missing_events",wm) 
-    for l in failure_list:
-        file.write(pasteR(l,sep=",")+"\n")
-    file.close()
+        file = open(wd+"missing_events",wm) 
+        for l in failure_list:
+            file.write(pasteR(l,sep=",")+"\n")
+        file.close()
 
-    file = open(wd+"completed_events",wm) 
-    for l in completed_list:
-        file.write(pasteR(l,sep=",")+"\n")
-    file.close()
+        file = open(wd+"completed_events",wm) 
+        for l in completed_list:
+            file.write(pasteR(l,sep=",")+"\n")
+        file.close()
     return(completed_list,failure_list)
 
 def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz"):

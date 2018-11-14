@@ -29,8 +29,8 @@ eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
 ##OR using an available catalog
 useclient=True
 cl="USGS"
-starttime=UTCDateTime(2018,11,01)
-endtime=UTCDateTime(2018,12,01)
+starttime=UTCDateTime("2018-11-01")
+endtime=UTCDateTime("2018-12-01")
 ###Create unique event names YYYY.DDD.HH.MM.SS.NW.STA.C.SAC
 cnames=True
 ####################################
