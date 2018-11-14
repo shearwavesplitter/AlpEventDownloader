@@ -14,6 +14,8 @@ from obspy import read_inventory
 from obspy.io.sac import SACTrace
 import time
 from obspy.signal import rotate 
+from obspy.clients.fdsn import Client
+from obspy import Stream
 ###Paste function for creating .csv
 def pasteR(vector,sep=" "):
     s=str(vector[0])
@@ -23,7 +25,39 @@ def pasteR(vector,sep=" "):
     return(s)
 
 #####Read event csv
-def read_eventcsv(path,minmag=5.5,cnames=True):
+def read_eventcsv(path,minmag=5.5,cnames=True,useclient=False,cl="USGS",starttime=None,endtime=None):
+    if useclient:
+        client = Client(cl)
+        cat = client.get_events(starttime=starttime,endtime=endtime,minmagnitude=minmag)
+        evtimes=[]
+        lats=[]
+        lons=[]
+        dps=[]
+        mags=[]
+        ids=[]
+        for ev in cat:
+            lats.append(ev.preferred_origin().latitude)
+            lons.append(ev.preferred_origin().longitude)
+            ttemp=ev.preferred_origin().time
+            evtimes.append(ttemp)
+            mags.append(ev.preferred_magnitude().mag)
+            dps.append(ev.preferred_origin().depth/1000)
+            if cnames:
+                jday=("00"+str(ttemp.julday))[-3:]
+                hr=("0"+str(ttemp.hour))[-2:]
+                mn=("0"+str(ttemp.minute))[-2:]
+                sec=("0"+str(ttemp.second))[-2:]
+                line=pasteR([str(ttemp.year),jday,hr,mn,sec],sep=".")
+                ids.append(line)
+            else:
+                ids.append(ev['extra']['eventid']['value'])
+        evmat=np.column_stack((ids,evtimes,lats,lons,dps,mags))
+        ids=np.asarray(ids)
+        if not len(ids) == len(np.unique(ids)):
+            raise  ValueError("IDs are not unique")
+        return(evmat,evtimes)
+
+
     with open(path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         rs=[x for x in reader]
@@ -71,7 +105,9 @@ def read_eventcsv(path,minmag=5.5,cnames=True):
     return(evmat,evtimes)
 
 #######Read station csv
-def read_stationcsv(path,defaultnet="_ALPARRAY"):
+def read_stationcsv(path,defaultnet="_ALPARRAY",usestatclient=False):
+    if usestatclient:
+        return([],[])
     with open(path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[x for x in reader]
@@ -94,10 +130,17 @@ def read_stationcsv(path,defaultnet="_ALPARRAY"):
 
 
 #####Populate wildcard
-def populate(stations,networks,evtimes,routername="eida-routing"):
+def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=False,network=None,minlatitude=-90,minlongitude=-180,maxlatitude=90,maxlongitude=180):
     outstations=[]
     outnetworks=[]
     client = RoutingClient(routername)
+    if usestatclient:
+        inv=client.get_stations(network=network, station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station",minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
+        for net in inv:
+            for stat in net:
+                outstations.append(stat.code)
+                outnetworks.append(net.code)
+        return(outstations,outnetworks)
     for i in np.arange(len(stations)):
         if stations[i] == "*":
             inv=client.get_stations(network=networks[0], station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station")
@@ -255,7 +298,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             if intfac == fac:
                                 trz.decimate(intfac)
                             else:
-                                trz=resample(20,no_filter=False)
+                                trz.resample(20,no_filter=False)
                 subms.trim(starttime=stt,endtime=ett)
                 subms._trim_common_channels()
                 if not rotrt == None:
@@ -344,7 +387,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             if intfac == fac:
                                 trz.decimate(intfac)
                             else:
-                                trz=resample(20,no_filter=False)
+                                trz.resample(20,no_filter=False)
                 subms.trim(starttime=stt,endtime=ett)
                 subms._trim_common_channels()
                 if not rotrt == None:

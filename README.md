@@ -1,7 +1,5 @@
 # AlpEventDownloader
 
-## Requires python version 2.7
-
 ## About
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
@@ -63,9 +61,9 @@ Misc. packages (should be included with standard obspy installation)
 
 ## How to run
 
-1. Create the event and station .csv files with the proper columns
-2. Create a working directory
-3. Update the "main parameters" and paths in download_events_script.py 
+1. Create a working directory
+2. Update the "main parameters" and paths in download_events_script.py 
+3. (Optional) Create the event and station .csv files with the proper columns
 4. Run the script download_events_script.py 
 
 ## Output
@@ -94,7 +92,7 @@ Misc. packages (should be included with standard obspy installation)
 **retry**
  * Re-attempt to download failed events
 
-## .csv format
+## .csv format (Optional)
 
 * Event .csv requires columns with the titles (not including the description in brackets):
   1. time (obspy readable format)
@@ -114,10 +112,10 @@ Misc. packages (should be included with standard obspy installation)
 **download_events_script.py**
  * The script for downloading events
 
-**example_events.csv**
+**example_events.csv (optional)**
  * Example of the events .csv file
 
-**example_stations.csv**
+**example_stations.csv (optional)**
  * Example of the stations .csv file
 
 ## Details

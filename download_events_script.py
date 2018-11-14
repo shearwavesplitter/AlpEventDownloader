@@ -1,4 +1,6 @@
 #!/usr/bin/env python2.7
+import sys
+from obspy import UTCDateTime
 #Requires fdsnwsscripts for fdsn=True (pip install fdsnwsscripts)
 #Requires standalone arclink_fetch client for fdsn=False
 #Create a working directory
@@ -20,11 +22,32 @@ wd='/data/home/mroczek/alpevent/'
 #Directory containing the functions document
 fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
 
+
+###########EVENTS###################
 #Path to the events csv file
 eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
+##OR using an available catalog
+useclient=True
+cl="USGS"
+starttime=UTCDateTime(2018,11,01)
+endtime=UTCDateTime(2018,12,01)
+###Create unique event names YYYY.DDD.HH.MM.SS.NW.STA.C.SAC
+cnames=True
+####################################
 
+
+###########STATIONS###################
 #Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
 stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
+#Or get stations from EIDA routing client in lat/longbox
+usestatclient=True
+network="_ALPARRAY"
+minlatitude=-90 
+minlongitude=-180
+maxlatitude=90
+maxlongitude=180
+####################################
+
 
 #Phase (see obspy for detailed options)
 phase="P"
@@ -66,23 +89,24 @@ model="iasp91"
 mode="continue"
 
 
-###Create unique event names YYYY.DDD.HH.MM.SS.NW.STA.C.SAC
-cnames=True
-
 
 ###########
 ##Source functions
-execfile(fd)
+if sys.version_info[0] >= 3:
+    exec(open("./filename").read())
+else:
+    execfile(fd)
+
 ###Read events csv
 ##
-evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames)
+evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl)
 
 ###Read stations csv
-stations,networks=read_stationcsv(stationcsv)
+stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
 ##
 
 ###Populate * wild card
-stations,networks=populate(stations,networks,evtimes)
+stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
 ##
 
 ###Read station metadata
