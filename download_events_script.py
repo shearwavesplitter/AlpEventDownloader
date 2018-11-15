@@ -31,7 +31,7 @@ eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
 ##OR using an available catalog
 useclient=True
 cl="USGS"
-starttime=UTCDateTime("2016-01-01")
+starttime=UTCDateTime("2009-01-01")
 endtime=UTCDateTime("2018-12-01")
 ###Create unique event names YYYY.DDD.HH.MM.SS.NW.STA.C.SAC
 cnames=True
@@ -56,11 +56,11 @@ includeZS=False #Include the ZS network (defaults as part of _ALPARRAY)
 phase="P"
 
 #minimum magnitude (events below this value will be completely ignored)
-minmag=5 
+minmag=5.5
 
 #minimum epicentral distance
 minepi=30
-
+d
 #maximum epicentral distance
 maxepi=95
 

@@ -16,6 +16,7 @@ import time
 from obspy.signal import rotate 
 from obspy.clients.fdsn import Client
 from obspy import Stream
+import string
 ###Paste function for creating .csv
 def pasteR(vector,sep=" "):
     s=str(vector[0])
@@ -51,14 +52,23 @@ def read_eventcsv(path,minmag=5.5,cnames=True,useclient=False,cl="USGS",starttim
                 ids.append(line)
             else:
                 ids.append(ev['extra']['eventid']['value'])
-        evmat=np.column_stack((ids,evtimes,lats,lons,dps,mags))
         ids=np.asarray(ids)
+        ids=ids.astype("|S18")
+        idi=np.arange(len(ids))
+        for ind in idi:
+            t=idi[ids == ids[ind]]
+            tl=len(t)
+            if tl > 1:
+                for cnt,ind2 in enumerate(t):
+                    ids[ind2]=str(ids[ind2]+string.ascii_uppercase[cnt])
+        evmat=np.column_stack((ids,evtimes,lats,lons,dps,mags))
+
         if not len(ids) == len(np.unique(ids)):
             raise  ValueError("IDs are not unique")
         return(evmat,evtimes)
 
 
-    with open(path, 'rb') as csvfile:
+    with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         rs=[x for x in reader]
     nrs=np.asarray(rs)
@@ -108,7 +118,7 @@ def read_eventcsv(path,minmag=5.5,cnames=True,useclient=False,cl="USGS",starttim
 def read_stationcsv(path,defaultnet="_ALPARRAY",usestatclient=False):
     if usestatclient:
         return([],[])
-    with open(path, 'rb') as csvfile:
+    with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[x for x in reader]
 
@@ -166,7 +176,7 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
         file = open(wd+"missing_stations","a+")
         file.close()
         skip=[]
-        with open(wd+"missing_stations", 'rb') as csvfile:
+        with open(wd+"missing_stations", 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='"')
             ss=[skip.append(x) for x in reader]
         netstat=[x[1]+x[2] for x in skip]
@@ -356,7 +366,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.user0=inc
                     sactr.baz=baz
                     sactr.stel=trinv[0][0].elevation
-                    sactr.kevnm=runline2[0]
+                    sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
         os.remove(wd+reqname+".mseed")
@@ -448,7 +458,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.baz=baz
                     sactr.user0=inc
                     sactr.stel=trinv[0][0].elevation
-                    sactr.kevnm=runline2[0]
+                    sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
             os.remove(wd+reqname+".mseed")
@@ -461,7 +471,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
 def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None):
     if mode == "retry":
         evtimes=np.asarray([x[1] for x in evmat])
-        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt)
+        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
         return(completed_list,failure_list)
     if mode == "all":
         print("Downloading all events...")
@@ -478,10 +488,10 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         file.close()
         file = open(wd+"missing_events","a+")
         file.close()
-        with open(wd+"completed_events", 'rb') as csvfile:
+        with open(wd+"completed_events", 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='"')
             ss=[skip.append(x) for x in reader]
-        with open(wd+"missing_events", 'rb') as csvfile:
+        with open(wd+"missing_events", 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='"')
             ss=[skip.append(x) for x in reader]
 
@@ -495,9 +505,6 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
             if len(subskip) > 0:
                 subnet=[networks[x] for x in np.arange(len(substations)) if substations[x] not in subskip[:,1]]
                 substations=[x for x in substations if x not in subskip[:,1]]
-            else:
-                subnet=[]
-                substations=[]
         rb=dl_event(evl,wd=wd,stations=substations,networks=subnet,inv=inv,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
         blank=[completed_list.append(x) for x in rb if x[4] == "completed"]
         blank=[failure_list.append(x) for x in rb if not x[4] == "completed"]
@@ -521,7 +528,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
 def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None):
     ###Attempt missing stations
     missing=[]
-    with open(wd+"missing_stations", 'rb') as csvfile:
+    with open(wd+"missing_stations", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[missing.append(x) for x in reader]
     stations=[x[1] for x in missing]
@@ -535,12 +542,12 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
 ###Attempt missing events
 
     missing_events=[]
-    with open(wd+"missing_events", 'rb') as csvfile:
+    with open(wd+"missing_events", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[missing_events.append(x) for x in reader if x[4] != "epi_dist"]
 
     epi_events=[]
-    with open(wd+"missing_events", 'rb') as csvfile:
+    with open(wd+"missing_events", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[epi_events.append(x) for x in reader if x[4] == "epi_dist"]
 

@@ -127,7 +127,7 @@ Other:
 3. Requests all HH* data for stations with missing or incomplete BH* data
 4. Individually requests HH* data for stations with missing or incomplete HH* data
 5. Applies broad bandpass filter and then detrends
-6. Writes out sac files for each event including header information
+6. Writes out sac files for each event including header information (Event name (KEVNM) skips the leading 20 (or 19) due to having a 16 character limit)
 
 ### retry mode
 
@@ -147,5 +147,6 @@ Other:
 * Events are cut so that they are the same length (npts could vary between events).
 * Cut events will be flagged under missing_vals if they number of missing samples exceeds 10%
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
-* If downsample==True and the actual sampling rate isn't a integer multiple of 20 then resample will be used instead of decimate
+* If downsample==True and the actual sampling rate isn't an integer multiple of 20 then resample will be used instead of decimate
 * Stations with sampling rates below 20 Hz won't be resampled at 20 Hz
+* Event name (KEVNM) for sac files skips the leading 20 (or 19) due to having a 16 character limit
