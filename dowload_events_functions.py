@@ -289,7 +289,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             for l in np.arange(len(sts)):
                 subst=sts[l]
                 subms=ms.select(station=subst,network=nets[l])
-                subms.merge()
+                #subms.merge()
                 runline2=[x for x in run if x[2] == nets[l] and x[1] == subst][0]
                 stt=runline2[3]
                 ett=runline2[4]
@@ -305,8 +305,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 trz.decimate(intfac)
                             else:
                                 trz.resample(20,no_filter=False)
-                subms.trim(starttime=stt,endtime=ett)
-                subms._trim_common_channels()
+                #subms.trim(starttime=stt,endtime=ett)
+                #subms._trim_common_channels()
                 if not rotrt == None:
                     try:
                         subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
@@ -318,6 +318,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 if not (flo == None or fhi == None):
                     subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
                 subms.detrend()
+                subms.merge()
+                subms.trim(starttime=stt,endtime=ett)
+                subms._trim_common_channels()
                 ts=[True for x in subms if x.stats.npts < .9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:
@@ -378,7 +381,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failure3.append([id,stat,net,component,"no_data"])
             else:
                 subms=read(wd+reqname+".mseed")
-                subms.merge()
+                #subms.merge()
                 runline2=[x for x in run if x[2] == net and x[1] == stat][0]
                 stt=runline2[3]
                 ett=runline2[4]
@@ -394,8 +397,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 trz.decimate(intfac)
                             else:
                                 trz.resample(20,no_filter=False)
-                subms.trim(starttime=stt,endtime=ett)
-                subms._trim_common_channels()
+                #subms.trim(starttime=stt,endtime=ett)
+                #subms._trim_common_channels()
                 if not rotrt == None:
                     try:
                         subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
@@ -407,6 +410,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 if not (flo == None or fhi == None):
                     subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
                 subms.detrend()
+                subms.merge()
+                subms.trim(starttime=stt,endtime=ett)
+                subms._trim_common_channels()
                 ts=[True for x in subms if x.stats.npts < 0.9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:

@@ -19,7 +19,7 @@ arclink_token="1235_gfz"
 dcidpath='/data/home/mroczek/dcidpasswords.txt'
 
 #Working directory where data will be saved (requires the trailing "/")
-wd='/media/mroczek/eq_data/ZS/'
+wd='/media/mroczek/eq_data/alpevent/'
 
 #Directory containing the functions document
 fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
