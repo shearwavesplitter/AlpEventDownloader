@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 import sys
 from obspy import UTCDateTime
+#requires python version2.7
 #Requires fdsnwsscripts for fdsn=True (pip install fdsnwsscripts)
 #Requires standalone arclink_fetch client for fdsn=False
 #Create a working directory
@@ -19,7 +20,7 @@ arclink_token="1235_gfz"
 dcidpath='/data/home/mroczek/dcidpasswords.txt'
 
 #Working directory where data will be saved (requires the trailing "/")
-wd='/media/mroczek/eq_data/alpevent/'
+wd='/data/home/mroczek/Dropbox/alpevent/'
 
 #Directory containing the functions document
 fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
@@ -60,7 +61,7 @@ minmag=5.5
 
 #minimum epicentral distance
 minepi=30
-d
+
 #maximum epicentral distance
 maxepi=95
 
@@ -96,7 +97,8 @@ mode="continue"
 ###########
 ##Source functions
 if sys.version_info[0] >= 3:
-    exec(open("./filename").read())
+    #exec(open(fd).read())
+    raise Exception("Requires python 2.7")
 else:
     execfile(fd)
 

@@ -1,5 +1,7 @@
 # AlpEventDownloader
 
+##Requires python version 2.7
+
 ## About
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
@@ -18,7 +20,7 @@ Not all data centres have implemented fdsnws_fetch. Instead the default backend 
 ## Installation
 
 ### For fdsn_fetch backend
-Open your preferred python environment (requires python 2.7)
+Open your preferred python environment
 ```python
 pip install fdsnwsscripts
 ```
@@ -79,7 +81,7 @@ Other:
   4. Channel (BH or HH)
   5. Comment
     * "no_data" if there is no data available
-    * "missing_val" if some of the trace is missing
+    * "missing_val" if some of the trace is missing (this funcionality doesn't appear to be active)
     * "epi_dist" if the epicentral distance is outside the allowed band
 * "completed_events" .csv contains the station, network, and component for events that have been successfully downloaded
 

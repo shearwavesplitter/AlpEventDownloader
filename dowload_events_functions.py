@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 import csv
 import numpy as np
-from fdsnwsscripts import fdsnws_fetch
+#from fdsnwsscripts import fdsnws_fetch
 from subprocess import call
 from obspy.core.utcdatetime import UTCDateTime
 import os
@@ -161,7 +161,7 @@ def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=F
                         outstations.append(stat.code)
                         outnetworks.append(net.code)
         else:
-            if (not net.code == "ZS") or includeZS:
+            if (not networks[i] == "ZS") or includeZS:
                 outstations.append(stations[i])
                 outnetworks.append(networks[i])
     return(outstations,outnetworks)
