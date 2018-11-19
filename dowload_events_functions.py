@@ -335,7 +335,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 subms.detrend()
                 subms.merge()
                 subms.trim(starttime=stt,endtime=ett)
-                subms._trim_common_channels()
+                subunstat=np.unique(np.asarray([x.stats.station for x in subms]))
+                for subunst in subunstat:
+                    try:
+                        subms.select(station=subunst)._trim_common_channels()
+                    except:
+                        pass
                 ts=[True for x in subms if x.stats.npts < .9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:
@@ -433,7 +438,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 subms.detrend()
                 subms.merge()
                 subms.trim(starttime=stt,endtime=ett)
-                subms._trim_common_channels()
+                subunstat=np.unique(np.asarray([x.stats.station for x in subms]))
+                for subunst in subunstat:
+                    try:
+                        subms.select(station=subunst)._trim_common_channels()
+                    except:
+                        pass
                 ts=[True for x in subms if x.stats.npts < 0.9*(we-ws)*x.stats.sampling_rate]
                 nan=[True for x in subms if sum(np.isnan(x.data)) > 0]
                 if sum(ts) > 0:
