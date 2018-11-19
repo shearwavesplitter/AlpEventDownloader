@@ -86,6 +86,13 @@ Other:
     * "epi_dist" if the epicentral distance is outside the allowed band
 * "completed_events" .csv contains the station, network, and component for events that have been successfully downloaded
 
+## ZNE Rotations
+The part of the code that corrects ZNE rotations hasn't been thoroughly tested yet. However, there are some SAC hears to help identify traces that have failed:
+* Rotations use the median value from the .csv file if the number of samples is greater than 4
+* user1 is set to 1 if a ZNE rotation has been attempted (i.e. the table contains azimuth data for that station) otherwise 0
+* user2 is set to 1 if the rotation was successful (otherwise 0). 
+Most failures to rotate will occur due to nan values in the trace (i.e. traces of different lengths) causing an unrotated trace to be written to file (with the header user2=0)
+
 ## Optional modes:
 
 **all**

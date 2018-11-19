@@ -50,6 +50,9 @@ minlongitude=-180
 maxlatitude=90
 maxlongitude=180
 includeZS=False #Include the ZS network (defaults as part of _ALPARRAY)
+#ZNE rotations (correct station azimuths with .csv file?)
+znepath='/data/home/mroczek/AlpEventDownloader/rotations.csv'
+rotzne=False
 ####################################
 
 
@@ -119,6 +122,6 @@ inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=
 ##
 
 ###Begin download
-comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath)
+comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath)
 ##
 
