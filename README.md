@@ -151,7 +151,7 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
 
 
 ## Potential pitfalls
-* ZNE misorientations are **not** corrected for (even if rotated to RT or LQT). Component azimuth and dip information is lost from the sac headers if RT/LQT rotation is performed. This is because many stations have wrong component azimuth/dip information. 
+* If ZNE orientation correction is attempted some events may fail so check the sac header user0 to make sure it is set to 1
 * "missing_val" functionality hasn't been thoroughly tested
 * An event can be flagged for missing_val but still have data downloaded (e.g. only two of the components)
 * Events are cut so that they are the same length (npts could vary between events).
