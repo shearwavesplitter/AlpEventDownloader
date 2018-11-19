@@ -280,7 +280,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             else:
                 cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname+" -w "+dcidpath
         os.system(cmd)
-        fsize=os.path.getsize(wd+reqname+".mseed")
+        dne=False
+        try:
+            fsize=os.path.getsize(wd+reqname+".mseed")
+        except:
+            dne=True
+            fsize=0
         if fsize == 0:
             for rl in run:
                 failure2.append([rl[0],rl[1],rl[2],component,"no_data"])
@@ -369,7 +374,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
-        os.remove(wd+reqname+".mseed")
+        if not dne:
+            os.remove(wd+reqname+".mseed")
         os.remove(wd+reqname)
 
         for i in np.arange(len(failure2)):
@@ -386,7 +392,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             file.close()
             cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
             os.system(cmd)
-            fsize=os.path.getsize(wd+reqname+".mseed")
+            dne=False
+            try:
+                fsize=os.path.getsize(wd+reqname+".mseed")
+            except:
+                dne=True
+                fsize=0
             if fsize == 0:
                 failure3.append([id,stat,net,component,"no_data"])
             else:
@@ -461,7 +472,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,nets[l],component,"completed"])
-            os.remove(wd+reqname+".mseed")
+            if not dne:
+                os.remove(wd+reqname+".mseed")
             os.remove(wd+reqname)
     for l in failure3:
         failure.append(l)

@@ -73,6 +73,7 @@ Other:
 
 ## Output
 * .sac files for each event sorted either by event name or by station
+* Event back azimuth (baz) and incidence angle (user0) are written into the sac headers
 * "missing_stations" .csv file which contains stations that are not available for any event
 * "missing_events" .csv file which contains the columns 
   1. Event ID
