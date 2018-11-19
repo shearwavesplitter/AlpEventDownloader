@@ -152,6 +152,7 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
 
 ## Potential pitfalls
 * If ZNE orientation correction is attempted some events may fail so check the sac header user0 to make sure it is set to 1
+* If the RT or LQT rotation fails then the components will be left as ZNE
 * "missing_val" functionality hasn't been thoroughly tested
 * An event can be flagged for missing_val but still have data downloaded (e.g. only two of the components)
 * Events are cut so that they are the same length (npts could vary between events).
