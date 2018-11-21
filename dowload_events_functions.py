@@ -358,9 +358,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 if onetwo:
                                     subms.select(channel="*Z")[0].data=z
                                     subms.select(channel="*1")[0].data=n
-                                    subms.select(channel="*1")[0].channel=subms.select(channel="*1")[0].stats.channel[:2]+"N"
+                                    subms.select(channel="*1")[0].stats.channel=subms.select(channel="*1")[0].stats.channel[:2]+"N"
                                     subms.select(channel="*2")[0].data=e
-                                    subms.select(channel="*2")[0].channel=subms.select(channel="*2")[0].stats.channel[:2]+"E"
+                                    subms.select(channel="*2")[0].stats.channel=subms.select(channel="*2")[0].stats.channel[:2]+"E"
                                     znes=True
                                 else:
                                     subms.select(channel="*Z")[0].data=z
@@ -531,9 +531,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 if onetwo:
                                     subms.select(channel="*Z")[0].data=z
                                     subms.select(channel="*1")[0].data=n
-                                    subms.select(channel="*1")[0].channel=subms.select(channel="*1")[0].stats.channel[:2]+"N"
+                                    subms.select(channel="*1")[0].stats.channel=subms.select(channel="*1")[0].stats.channel[:2]+"N"
                                     subms.select(channel="*2")[0].data=e
-                                    subms.select(channel="*2")[0].channel=subms.select(channel="*2")[0].stats.channel[:2]+"E"
+                                    subms.select(channel="*2")[0].stats.channel=subms.select(channel="*2")[0].stats.channel[:2]+"E"
                                     znes=True
                                 else:
                                     subms.select(channel="*Z")[0].data=z
