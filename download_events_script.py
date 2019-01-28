@@ -42,6 +42,7 @@ cnames=True
 ###########STATIONS###################
 #Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
 stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
+network="ZS"
 #Or get stations from EIDA routing client in lat/longbox
 usestatclient=True
 network="_ALPARRAY"
@@ -110,7 +111,7 @@ else:
 evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl,starttime=starttime,endtime=endtime)
 
 ###Read stations csv
-stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
+stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient,defaultnet=network)
 ##
 
 ###Populate * wild card

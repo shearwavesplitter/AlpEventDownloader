@@ -118,6 +118,8 @@ def read_eventcsv(path,minmag=5.5,cnames=True,useclient=False,cl="USGS",starttim
 def read_stationcsv(path,defaultnet="_ALPARRAY",usestatclient=False):
     if usestatclient:
         return([],[])
+    if path == "*":
+        return(["*"],[defaultnet])
     with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[x for x in reader]
@@ -322,6 +324,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 trz.resample(20,no_filter=False)
                 #subms.trim(starttime=stt,endtime=ett)
                 #subms._trim_common_channels()
+                if not rotzne:
+                    znes=False
+                    rota=False
                 if rotzne:
                     znes=False
                     try:
@@ -495,6 +500,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                                 trz.resample(20,no_filter=False)
                 #subms.trim(starttime=stt,endtime=ett)
                 #subms._trim_common_channels()
+                if not rotzne:
+                    znes=False
+                    rota=False
                 if rotzne:
                     znes=False
                     try:
