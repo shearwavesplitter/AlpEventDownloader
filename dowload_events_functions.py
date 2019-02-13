@@ -224,7 +224,7 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
 
 ##Main download function
 
-def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None):
+def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None):
     model = TauPyModel(model=mod)
     failure=[]
     failure3=[]
@@ -470,7 +470,13 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             line=[sst,est,rline2[2],rline2[1],component+"*","*",".\n"]
             file.write(pasteR(line))
             file.close()
-            cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+            if fdsn:
+                cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+            else:
+                if dcidpath == None:
+                    cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
+                else:
+                    cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname+" -w "+dcidpath
             os.system(cmd)
             dne=False
             try:
