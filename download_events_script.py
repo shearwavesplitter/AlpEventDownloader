@@ -42,7 +42,7 @@ cnames=True
 ###########STATIONS###################
 #Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
 stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
-network="ZS"
+network="_ALPARRAY"
 #Or get stations from EIDA routing client in lat/longbox
 usestatclient=True
 network="_ALPARRAY"
