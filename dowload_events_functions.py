@@ -645,7 +645,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
-                failure.append([id,subst,nets,component,"completed"])
+                failure.append([id,subst,net,component,"completed"])
             if not dne:
                 os.remove(wd+reqname+".mseed")
             os.remove(wd+reqname)
