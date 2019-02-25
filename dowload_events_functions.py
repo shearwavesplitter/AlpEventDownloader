@@ -249,6 +249,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             if epi < minepi or epi > maxepi:
                 failure.append([id,stations[j],networks[j],component,"epi_dist"])
                 episkip=True
+            else:
+                ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=[phase])
+                if len(ptime) == 0:
+                    failure.append([id,stations[j],networks[j],component,"epi_dist"])
+                    episkip=True
 
         subinv=inv.select(station=stations[j],network=networks[j],time=t,channel=component+"*")
         if len(subinv) == 0 or episkip:
@@ -256,7 +261,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failure.append([id,stations[j],networks[j],component,"no_data"])
         else:
             if not (epi < minepi or epi > maxepi):
-                ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=[phase])
+                #ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=[phase])
                 ptrav=ptime[0].time
                 inc=ptime[0].incident_angle
                 wstart=t+ptrav+ws
