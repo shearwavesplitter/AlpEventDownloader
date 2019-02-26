@@ -43,6 +43,8 @@ cnames=True
 #Path to the events csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
 stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
 network="_ALPARRAY"
+#Set c_inv equal to an obspy inventory (e.g. from read_inventory or get_stations) if you want to use your own station inventory rather than download a new one
+c_inv=None
 #Or get stations from EIDA routing client in lat/longbox
 usestatclient=True
 network="_ALPARRAY"
@@ -115,11 +117,11 @@ stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient,default
 ##
 
 ###Populate * wild card
-stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS)
+stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS,c_inv=c_inv)
 ##
 
 ###Read station metadata
-inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode)
+inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode,c_inv=c_inv)
 ##
 
 ###Begin download

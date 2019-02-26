@@ -142,12 +142,15 @@ def read_stationcsv(path,defaultnet="_ALPARRAY",usestatclient=False):
 
 
 #####Populate wildcard
-def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=False,network=None,minlatitude=-90,minlongitude=-180,maxlatitude=90,maxlongitude=180,includeZS=False):
+def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=False,network=None,minlatitude=-90,minlongitude=-180,maxlatitude=90,maxlongitude=180,includeZS=False,c_inv=[]):
     outstations=[]
     outnetworks=[]
     client = RoutingClient(routername)
     if usestatclient:
-        inv=client.get_stations(network=network, station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station",minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
+        if len(c_inv) == 0:
+            inv=client.get_stations(network=network, station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station",minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude)
+        else:
+            inv=c_inv
         for net in inv:
             for stat in net:
                 if (not net.code == "ZS") or includeZS:
@@ -156,7 +159,10 @@ def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=F
         return(outstations,outnetworks)
     for i in np.arange(len(stations)):
         if stations[i] == "*":
-            inv=client.get_stations(network=networks[0], station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station")
+            if len(c_inv) == 0:
+                inv=client.get_stations(network=networks[0], station="*",starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="station")
+            else:
+                inv=c_inv
             for net in inv:
                 for stat in net:
                     if (not net.code == "ZS") or includeZS:
@@ -169,7 +175,7 @@ def populate(stations,networks,evtimes,routername="eida-routing",usestatclient=F
     return(outstations,outnetworks)
 
 ####Read station metadata
-def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="continue",write=True):
+def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="continue",write=True,c_inv=[]):
     if mode == "retry":
         return([],[],[],[])
     if mode == "all":
@@ -186,13 +192,16 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
         stations=[stations[x] for x in np.arange(len(stations)) if netstatin[x] not in netstat]
         networks=[networks[x] for x in np.arange(len(networks)) if netstatin[x] not in netstat]
     client = RoutingClient(routername)
-    inv=client.get_stations(network=networks[0], station=stations[0],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
-    for i in np.arange(1,len(stations)):
-        try:
-            inv+=client.get_stations(network=networks[i], station=stations[i],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
-        except:
-            print(stations[i])
-            print("No station information")
+    if len(c_inv) == 0:
+        inv=client.get_stations(network=networks[0], station=stations[0],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
+        for i in np.arange(1,len(stations)):
+            try:
+                inv+=client.get_stations(network=networks[i], station=stations[i],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
+            except:
+                print(stations[i])
+                print("No station information")
+    else:
+        inv=c_inv
 
     missing_stat=[]
     mstatlist=[]
