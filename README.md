@@ -40,7 +40,7 @@ sudo apt-get install -f
 * obspy v1.1
 
 Misc. packages (should be included with standard obspy installation)
-* numpy1.16
+* numpy
 * csv
 * subprocess
 * os
