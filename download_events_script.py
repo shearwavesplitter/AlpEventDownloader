@@ -44,7 +44,7 @@ cnames=True
 stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
 network="_ALPARRAY"
 #Set c_inv equal to an obspy inventory (e.g. from read_inventory or get_stations) if you want to use your own station inventory rather than download a new one
-c_inv=None
+c_inv=[]
 #Or get stations from EIDA routing client in lat/longbox
 usestatclient=True
 network="_ALPARRAY"
