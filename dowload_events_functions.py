@@ -340,11 +340,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                         cdm=np.lcm(np.int(srate),20)
                         if srate > 20:
                             if cdm > srate:
-                                trz.resample(cdm)
+                                trz.resample(cdm,no_filter=True)
                             fac=cdm/20
                             intfac=int(fac)
                             if intfac == fac:
-                                trz.decimate(intfac)
+                                trz.filter("lowpass",freq=10,zerophase=True)
+                                trz.decimate(intfac,no_filter=True)
                 #subms.trim(starttime=stt,endtime=ett)
                 #subms._trim_common_channels()
                 if not rotzne:
@@ -529,11 +530,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                         cdm=np.lcm(np.int(srate),20)
                         if srate > 20:
                             if cdm > srate:
-                                trz.resample(cdm)
+                                trz.resample(cdm,no_filter=True)
                             fac=cdm/20
                             intfac=int(fac)
                             if intfac == fac:
-                                trz.decimate(intfac)
+                                trz.filter("lowpass",freq=10,zerophase=True)
+                                trz.decimate(intfac,no_filter=True)
                 #subms.trim(starttime=stt,endtime=ett)
                 #subms._trim_common_channels()
                 if not rotzne:
