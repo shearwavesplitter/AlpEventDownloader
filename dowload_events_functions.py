@@ -446,8 +446,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     else:
                         trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t,channel=tr.stats.channel)
                     if rotrt == None:
-                        sactr.cmpaz=trinv[0][0][0].azimuth
-                        sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                        try:
+                            sactr.cmpaz=trinv[0][0][0].azimuth
+                            sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                        except:
+                            pass
                     if znes:
                         sactr.user2=1
                         if tr.stats.channel[2] == "Z":
@@ -637,8 +640,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                         trinv=inv.select(station=tr.stats.station,network=tr.stats.network,time=t,channel=tr.stats.channel)
                     sactr = SACTrace.from_obspy_trace(tr)
                     if rotrt == None:
-                        sactr.cmpaz=trinv[0][0][0].azimuth
-                        sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                        try:
+                            sactr.cmpaz=trinv[0][0][0].azimuth
+                            sactr.cmpinc=trinv[0][0][0].dip+90 ##convert to degrees from vertical
+                        except:
+                            pass
                     if znes:
                         sactr.user1=1
                         if tr.stats.channel[2] == "Z":
