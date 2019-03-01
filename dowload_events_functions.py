@@ -344,6 +344,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             fac=cdm/20
                             intfac=int(fac)
                             if intfac == fac:
+                                trz.detrend()
                                 trz.filter("lowpass",freq=10,zerophase=True)
                                 trz.decimate(intfac,no_filter=True)
                 #subms.trim(starttime=stt,endtime=ett)
@@ -412,9 +413,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             subms[1].stats.starttime=zstart
                             subms[2].stats.starttime=zstart
                             subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                subms.detrend()
                 if not (flo == None or fhi == None):
                     subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
-                subms.detrend()
                 subms.merge()
                 subms.trim(starttime=stt,endtime=ett)
                 subunstat=np.unique(np.asarray([x.stats.station for x in subms]))
@@ -534,6 +535,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             fac=cdm/20
                             intfac=int(fac)
                             if intfac == fac:
+                                trz.detrend()
                                 trz.filter("lowpass",freq=10,zerophase=True)
                                 trz.decimate(intfac,no_filter=True)
                 #subms.trim(starttime=stt,endtime=ett)
@@ -602,9 +604,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             subms[1].stats.starttime=zstart
                             subms[2].stats.starttime=zstart
                             subms.rotate(rotrt,back_azimuth=baz,inclination=inc)
+                subms.detrend()
                 if not (flo == None or fhi == None):
                     subms.filter(type='bandpass',freqmin=flo,freqmax=fhi,zerophase=True,corners=2)
-                subms.detrend()
                 subms.merge()
                 subms.trim(starttime=stt,endtime=ett)
                 subunstat=np.unique(np.asarray([x.stats.station for x in subms]))
