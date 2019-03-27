@@ -179,7 +179,8 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
     if mode == "retry":
         return([],[],[],[])
     if mode == "all":
-        print("New download...")
+        pass
+        #print("New download...")
     if mode == "continue":
         file = open(wd+"missing_stations","a+")
         file.close()
@@ -193,8 +194,9 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",mode="conti
         networks=[networks[x] for x in np.arange(len(networks)) if netstatin[x] not in netstat]
     client = RoutingClient(routername)
     if len(c_inv) == 0:
-        inv=client.get_stations(network=networks[0], station=stations[0],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
-        for i in np.arange(1,len(stations)):
+        inv=read_inventory().select(station="BLANKINV12345")
+        #inv=client.get_stations(network=networks[0], station=stations[0],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
+        for i in np.arange(len(stations)):
             try:
                 inv+=client.get_stations(network=networks[i], station=stations[i],starttime=min(evtimes),endtime=max(evtimes),includerestricted=True,level="channel")
             except:
