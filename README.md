@@ -116,7 +116,7 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
   6. (optional) id (unique event identifier) - Not required unless you want to define your own event names
 * Station .csv requires columns with the titles (not including the description in brackets):
   1. station (station name) - This can be a "*" to download from all stations
-  2. network (if not included defaults to _ALPARRAY)
+  2. network (if not included defaults to _ALPARRAY) **It is recommended not use _ALPARRAY as some stations are missing**
 
 ## File contents
 **dowload_events_functions.py**
