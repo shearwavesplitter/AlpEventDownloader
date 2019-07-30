@@ -312,6 +312,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
         except:
             dne=True
             fsize=0
+        try:
+            ms=read(wd+reqname+".mseed",headeronly=True)
+        except:
+            dne=True
+            fsize=0
         if fsize == 0:
             for rl in run:
                 failure2.append([rl[0],rl[1],rl[2],component,"no_data"])
@@ -319,6 +324,11 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failnets=[x[2] for x in failure2]
         else:
             ms=read(wd+reqname+".mseed")
+            for tr in ms:
+                tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
+                if tr.stats.network == "":
+                    tr2=[x for x in ms if ((not x.stats.network == "") and (x.stats.station==tr.stats.station))]
+                    tr.stats.network=tr2[0].stats.network
             ustnet=np.unique([[x.stats.station,x.stats.network] for x in ms],axis=0)
             pustnet=np.unique([x.stats.station+x.stats.network for x in ms],axis=0)
             sts=ustnet[:,0]
@@ -520,10 +530,21 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             except:
                 dne=True
                 fsize=0
+            try:
+                subms=read(wd+reqname+".mseed",headeronly=True)
+            except:
+                dne=True
+                fsize=0
+
             if fsize == 0:
                 failure3.append([id,stat,net,component,"no_data"])
             else:
                 subms=read(wd+reqname+".mseed")
+                for tr in subms:
+                    tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
+                    if tr.stats.network == "":
+                        tr2=[x for x in ms if ((not x.stats.network == "") and (x.stats.station==tr.stats.station))]
+                        tr.stats.network=tr2[0].stats.network
                 #subms.merge()
                 runline2=[x for x in run if x[2] == net and x[1] == stat][0]
                 stt=runline2[3]

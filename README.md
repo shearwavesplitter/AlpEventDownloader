@@ -119,7 +119,7 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
   2. network (if not included defaults to _ALPARRAY) **It is recommended not use _ALPARRAY as some stations are missing**
 
 ## File contents
-**dowload_events_functions.py**
+**download_events_functions.py**
  * The workhorse functions used for download
 
 **download_events_script.py**
@@ -159,6 +159,6 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
 * Cut events will be flagged under missing_vals if they number of missing samples exceeds 10%
 * Running multiple instances should be OK (just set mode to continue and summary files will contain events from both instances)
 * If downsample==True and the actual sampling rate isn't an integer multiple of 20 then resample will be used instead of decimate
-* The downsample anti-aliasing filter is now zerophase (default is not)
+* The downsample anti-aliasing filter is now zerophase (obspy default is not)
 * Stations with sampling rates below 20 Hz won't be resampled at 20 Hz
 * Event name (KEVNM) for sac files skips the leading 20 (or 19) due to having a 16 character limit
