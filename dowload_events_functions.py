@@ -333,6 +333,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             pustnet=np.unique([x.stats.station+x.stats.network for x in ms],axis=0)
             sts=ustnet[:,0]
             nets=ustnet[:,1]
+            #SOMEHOW FDSN REPLACES SOME NETWORK NAMES WITH XX. THIS CHECKS AND CORRECTS BUT WILL FAIL IF TWO STATIONS HAVE THE SAME NAME AND ONE OR BOTH ARE CHANGED TO "XX" -__-
+            for cn,el in enumerate(nets):
+                if el == 'XX':
+                    nets[cn]=rnets[rstats == sts[cn]][0]
             failstats=[rstats[x] for x in np.arange(len(rstats)) if (rstats[x]+rnets[x] not in pustnet)]
             failnets=[rnets[x] for x in np.arange(len(rstats)) if (rstats[x]+rnets[x] not in pustnet)]
             for i in np.arange(len(failstats)):
@@ -731,6 +735,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
             ss=[skip.append(x) for x in reader]
 
     for evl in evmat:
+        #evl=evmat[44]
         completed_list=[]
         failure_list=[]
         substations=stations
