@@ -344,6 +344,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             sts=ustnet[:,0]
             nets=ustnet[:,1]
             #SOMEHOW FDSN REPLACES SOME NETWORK NAMES WITH XX. THIS CHECKS AND CORRECTS BUT WILL FAIL IF TWO STATIONS HAVE THE SAME NAME AND ONE OR BOTH ARE CHANGED TO "XX" -__-
+            nets=np.asarray(nets)
+            rnets=np.asarray(rnets)
+            rstats=np.asarray(rstats)
+            sts=np.asarray(sts)
             for cn,el in enumerate(nets):
                 if el == 'XX':
                     nets[cn]=rnets[rstats == sts[cn]][0]
