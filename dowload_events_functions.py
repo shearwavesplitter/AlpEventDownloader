@@ -351,6 +351,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             for cn,el in enumerate(nets):
                 if el == 'XX':
                     nets[cn]=rnets[rstats == sts[cn]][0]
+            for tr in ms:
+                if tr.stats.network == "XX":
+                    tr.stats.network = rnets[rstats == tr.stats.station][0]
             failstats=[rstats[x] for x in np.arange(len(rstats)) if (rstats[x]+rnets[x] not in pustnet)]
             failnets=[rnets[x] for x in np.arange(len(rstats)) if (rstats[x]+rnets[x] not in pustnet)]
             for i in np.arange(len(failstats)):
@@ -563,6 +566,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     if tr.stats.network == "":
                         tr2=[x for x in ms if ((not x.stats.network == "") and (x.stats.station==tr.stats.station))]
                         tr.stats.network=tr2[0].stats.network
+                    if tr.stats.network == "XX":
+                        tr.stats.network = net
                 #subms.merge()
                 runline2=[x for x in run if x[2] == net and x[1] == stat][0]
                 stt=runline2[3]
