@@ -334,8 +334,8 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failnets=[x[2] for x in failure2]
         else:
             ms=read(wd+reqname+".mseed")
+            ms=merge_safe(ms)
             for tr in ms:
-                tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
                 if tr.stats.network == "":
                     tr2=[x for x in ms if ((not x.stats.network == "") and (x.stats.station==tr.stats.station))]
                     tr.stats.network=tr2[0].stats.network
@@ -561,8 +561,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failure3.append([id,stat,net,component,"no_data"])
             else:
                 subms=read(wd+reqname+".mseed")
+                subms=merge_safe(subms)
                 for tr in subms:
-                    tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
+                    #tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
                     if tr.stats.network == "":
                         tr2=[x for x in ms if ((not x.stats.network == "") and (x.stats.station==tr.stats.station))]
                         tr.stats.network=tr2[0].stats.network
@@ -858,3 +859,31 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
     file.close()
     return(completed_list,failure_list)
 
+#removes traces with bad sampling rates before merging
+def merge_safe(ms):
+    for tr in ms:
+        tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
+    statnet=np.asarray([x.stats.network+x.stats.station for x in ms])
+    u_statnet=np.unique(statnet)
+    for u_substat in u_statnet:
+        u_tf=statnet == u_substat
+        p_stream=Stream()
+        for itf,tf in enumerate(u_tf):
+            if tf:
+                p_stream+=ms[itf]
+        n_s=np.asarray([x.stats.npts for x in p_stream])
+        s_r=np.asarray([x.stats.sampling_rate for x in p_stream])
+        l_sr=[]
+        for u_s_r in np.unique(s_r):
+            l_sr.append(np.sum(n_s[s_r == u_s_r]))
+        l_sr=np.asarray(l_sr)
+        best_sr=np.unique(s_r)[l_sr == np.max(l_sr)][0]
+        for s_tr in p_stream:
+            if not s_tr.stats.sampling_rate == best_sr:
+                s_tr.stats.delete=True
+    for tr in ms:
+        if "delete" in tr.stats:
+            if tr.stats.delete:
+                ms.remove(tr)
+    ms.merge()
+    return(ms)
