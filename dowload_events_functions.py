@@ -885,5 +885,5 @@ def merge_safe(ms):
         if "delete" in tr.stats:
             if tr.stats.delete:
                 ms.remove(tr)
-    ms.merge()
+    ms.merge(fill_value="interpolate")
     return(ms)
