@@ -542,6 +542,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.user0=inc
                     sactr.user1=slw
                     sactr.baz=baz
+                    sactr.gcarc=epi
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0][2:18]
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
@@ -754,6 +755,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.o=o
                     sactr.baz=baz
                     sactr.user0=inc
+                    sactr.gcarc=epi
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0][2:18]
                     sactr.user1=slw

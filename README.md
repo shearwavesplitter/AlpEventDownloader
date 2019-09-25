@@ -77,7 +77,7 @@ Other:
 
 ## Output
 * .sac files for each event sorted either by event name or by station
-* Event back azimuth (baz) and incidence angle (user0) are written into the sac headers
+* Event back azimuth (baz), incidence angle (user0), and slowness (s/deg - user1) are written into the sac headers
 * "missing_stations" .csv file which contains stations that are not available for any event
 * "missing_events" .csv file which contains the columns 
   1. Event ID
@@ -93,7 +93,7 @@ Other:
 ## ZNE Rotations
 The part of the code that corrects ZNE rotations hasn't been thoroughly tested yet. However, there are some SAC headers to help identify traces that have failed:
 * Rotations use the median value from the .csv file if the number of samples is greater than 4
-* user1 is set to 1 if a ZNE rotation has been attempted (i.e. the table contains azimuth data for that station) otherwise 0
+* user3 is set to 1 if a ZNE rotation has been attempted (i.e. the table contains azimuth data for that station) otherwise 0
 * user2 is set to 1 if the rotation was successful (otherwise 0). 
 Most failures to rotate will occur due to nan values in the trace (i.e. traces of different lengths) causing an unrotated trace to be written to file (with the header user2=0).
 The correct azimuths in the .csv file are provided by Gesa Petersen and are calculated from Rayleigh wave polarisations.
@@ -155,7 +155,7 @@ The correct azimuths in the .csv file are provided by Gesa Petersen and are calc
 
 
 ## Potential pitfalls
-* If ZNE orientation correction is attempted some events may fail so check the sac header user1 to make sure it is set to 1
+* If ZNE orientation correction is attempted some events may fail so check the sac header user3 to make sure it is set to 1
 * If the RT or LQT rotation fails then the components will be left as ZNE
 * "missing_val" functionality hasn't been thoroughly tested
 * An event can be flagged for missing_val but still have data downloaded (e.g. only two of the components)
