@@ -536,6 +536,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.evla=lat
                     sactr.mag=mag
                     sactr.a=a
+                    sactr.ka=phase
                     sactr.o=o
                     sactr.user0=inc
                     sactr.user1=slw
@@ -747,6 +748,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.evla=lat
                     sactr.mag=mag
                     sactr.a=a
+                    sactr.ka=phase
                     sactr.o=o
                     sactr.baz=baz
                     sactr.user0=inc
