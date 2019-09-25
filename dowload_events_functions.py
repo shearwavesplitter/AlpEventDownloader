@@ -257,6 +257,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
     d=ev[4]
     mag=ev[5]
     id=ev[0]
+    bf_station_name=[]
+    bf_station_network=[]
+    bf_station_inc=[]
+    bf_station_slowness=[]
+    bf_station_baz=[]
+    bf_station_epi=[]
     for j in np.arange(len(stations)):
         episkip=False
         subinv=inv.select(station=stations[j],network=networks[j],time=t)
@@ -285,6 +291,14 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 #ptime=model.get_travel_times(source_depth_in_km=d,distance_in_degree=epi,phase_list=[phase])
                 ptrav=ptime[0].time
                 inc=ptime[0].incident_angle
+                slw=ptime[0].ray_param_sec_degree
+                ###add these to vectors
+                bf_station_name.append(stations[j])
+                bf_station_network.append(networks[j])
+                bf_station_inc.append(inc)
+                bf_station_slowness.append(slw)
+                bf_station_baz.append(baz)
+                bf_station_epi.append(epi)
                 wstart=t+ptrav+ws
                 wend=t+ptrav+we
                 run.append([id,stat,net,wstart,wend,ptrav])
@@ -358,9 +372,23 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             failnets=[rnets[x] for x in np.arange(len(rstats)) if (rstats[x]+rnets[x] not in pustnet)]
             for i in np.arange(len(failstats)):
                 failure2.append([id,failstats[i],failnets[i],component,"no_data"])
+            ##Convert to np arrays
+            bf_station_name=np.asarray(bf_station_name)
+            bf_station_network=np.asarray(bf_station_network)
+            bf_station_inc=np.asarray(bf_station_inc)
+            bf_station_slowness=np.asarray(bf_station_slowness)
+            bf_station_baz=np.asarray(bf_station_baz)
+            bf_station_epi=np.asarray(bf_station_epi)
+            bf_netstat=np.asarray([bf_station_network[i]+bf_station_name[i] for i in np.arange(len(bf_station_name))])
             for l in np.arange(len(sts)):
                 subst=sts[l]
                 subms=ms.select(station=subst,network=nets[l])
+                ##Get the proper inc and baz values
+                bf_tf=bf_netstat == (nets[l]+subst)
+                inc=bf_station_inc[bf_tf][0]
+                epi=bf_station_epi[bf_tf][0]
+                baz=bf_station_baz[bf_tf][0]
+                slw=bf_station_slowness[bf_tf][0]
                 #subms.merge()
                 runline2=[x for x in run if x[2] == nets[l] and x[1] == subst][0]
                 stt=runline2[3]
@@ -510,6 +538,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.a=a
                     sactr.o=o
                     sactr.user0=inc
+                    sactr.user1=slw
                     sactr.baz=baz
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0][2:18]
@@ -561,6 +590,12 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                 failure3.append([id,stat,net,component,"no_data"])
             else:
                 subms=read(wd+reqname+".mseed")
+                ##Get the proper inc and baz values
+                bf_tf=bf_netstat == (net+subst)
+                inc=bf_station_inc[bf_tf][0]
+                epi=bf_station_epi[bf_tf][0]
+                baz=bf_station_baz[bf_tf][0]
+                slw=bf_station_slowness[bf_tf][0]
                 subms=merge_safe(subms)
                 for tr in subms:
                     #tr.stats.sampling_rate=np.round(tr.stats.sampling_rate,1)
@@ -717,6 +752,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.user0=inc
                     sactr.stel=trinv[0][0].elevation
                     sactr.kevnm=runline2[0][2:18]
+                    sactr.user1=slw
                     sactr.write(wp+id+"."+tr.stats.network+"."+tr.stats.station+"."+tr.stats.channel+".SAC")
                 failure.append([id,subst,net,component,"completed"])
             if not dne:
