@@ -2,6 +2,10 @@
 
 ## Requires python version 2.7
 
+## Important:
+
+# A bug causes back azimuths and incidence angles to be off by several degrees. For previously downloaded events these should be corrected before rotating
+
 ## About
 
 This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
