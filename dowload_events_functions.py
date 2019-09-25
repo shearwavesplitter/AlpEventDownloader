@@ -526,9 +526,9 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     else:
                         sactr.user2=0
                     if rota:
-                        sactr.user1=1
+                        sactr.user3=1
                     else:
-                        sactr.user1=0
+                        sactr.user3=0
                     sactr.stla=trinv[0][0].latitude
                     sactr.stlo=trinv[0][0].longitude
                     sactr.evdp=d
@@ -537,6 +537,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.mag=mag
                     sactr.a=a
                     sactr.ka=phase
+                    sactr.kuser1=phase
                     sactr.o=o
                     sactr.user0=inc
                     sactr.user1=slw
@@ -729,7 +730,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                         except:
                             pass
                     if znes:
-                        sactr.user1=1
+                        sactr.user3=1
                         if tr.stats.channel[2] == "Z":
                             sactr.cmpaz=0
                             sactr.cmpinc=0
@@ -740,7 +741,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                             sactr.cmpaz=90
                             sactr.cmpinc=90
                     else:
-                        sactr.user1=0
+                        sactr.user3=0
                     sactr.stla=trinv[0][0].latitude
                     sactr.stlo=trinv[0][0].longitude
                     sactr.evdp=d
@@ -749,6 +750,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
                     sactr.mag=mag
                     sactr.a=a
                     sactr.ka=phase
+                    sactr.kuser1=phase
                     sactr.o=o
                     sactr.baz=baz
                     sactr.user0=inc
