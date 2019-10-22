@@ -121,11 +121,11 @@ stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
 ##
 
 ###Populate * wild card
-stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS,routername=client_name,rclient=rclient)
+stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS,routername=client_name,rclient=rclient,c_inv=c_inv)
 ##
 
 ###Read station metadata
-inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode,routername=client_name,rclient=rclient)
+inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode,routername=client_name,rclient=rclient,c_inv=c_inv)
 ##
 
 ###Begin download
