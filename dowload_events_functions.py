@@ -791,10 +791,10 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
     return(failure)
 
 
-def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True):
+def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
     if mode == "retry":
         evtimes=np.asarray([x[1] for x in evmat])
-        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient)
+        completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient,retry_network=retry_network,includeZS=includeZS)
         return(completed_list,failure_list)
     if mode == "all":
         print("Downloading all events...")
@@ -849,34 +849,63 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         file.close()
     return(completed_list,failure_list)
 
-def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True):
+def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
     ###Attempt missing stations
     missing=[]
     with open(wd+"missing_stations", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[missing.append(x) for x in reader]
-    stations=[x[1] for x in missing]
-    networks=[x[2] for x in missing]
+    stations_all=[x[1] for x in missing]
+    networks_all=[x[2] for x in missing]
+    if (retry_network == "*" or retry_network == "_ALPARRAY"):
+        if includeZS:
+            stations=stations_all
+            networks=networks_all
+        else:
+            stations=[stations_all[x] for x in np.arange(len(stations_all)) if networks_all[x] != "ZS"]
+            networks=[x for x in networks_all if x != "ZS"]
+    else:
+        stations=[stations_all[x] for x in np.arange(len(stations_all)) if networks_all[x] == retry_network]
+        networks=[x for x in networks_all if x == retry_network]
 ##Read station metadata
     try:
-        inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode="all",routingclient=client_name,rclient=rclient)
+        inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode="all",routername=client_name,rclient=rclient)
     except:
         stations=[]
 
     if len(stations) > 0:
         comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode="continue",mod=model,phase=phase,fdsn=fdsn,arclink_token=arclink_token,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing)
-
+    
+    comb=[pasteR([networks[x],stations[x]],sep=",")+"\n" for x in np.arange(len(stations))]
+    comb_all=[pasteR([networks_all[x],stations_all[x]],sep=",")+"\n" for x in np.arange(len(stations_all))]
+    wrt=[x for x in comb_all if not x in comb]
+    file = open(wd+"missing_stations",'a+') 
+    for l in wrt:
+        file.write(l)
+    file.close()
 ###Attempt missing events
 
     missing_events=[]
     with open(wd+"missing_events", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-        ss=[missing_events.append(x) for x in reader if x[4] != "epi_dist"]
+        if (retry_network == "*" or retry_network == "_ALPARRAY"):
+            if includeZS:
+                ss=[missing_events.append(x) for x in reader if x[4] != "epi_dist"]
+            else:
+                ss=[missing_events.append(x) for x in reader if (x[2] != "ZS" and x[4] != "epi_dist")]
+        else:
+            ss=[missing_events.append(x) for x in reader if (x[2] == retry_network and x[4] != "epi_dist")]
 
     epi_events=[]
     with open(wd+"missing_events", 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-        ss=[epi_events.append(x) for x in reader if x[4] == "epi_dist"]
+        if (retry_network == "*" or retry_network == "_ALPARRAY"):
+            if includeZS:
+                ss=[epi_events.append(x) for x in reader if x[4] == "epi_dist"]
+            else:
+                ss=[epi_events.append(x) for x in reader if (x[4] == "epi_dist" or x[2] == "ZS")]
+        else:
+            ss=[epi_events.append(x) for x in reader if (x[4] == "epi_dist" or x[2] != retry_network)]
 
     mevname=np.unique(np.asarray([x[0] for x in missing_events]))
 
@@ -886,7 +915,7 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
     stations=np.asarray([x[1] for x in missing_events])
     unstat=np.unique(np.asarray(stations),return_index=True)[1]
     networks=np.asarray([x[2] for x in missing_events])
-    inventory,missing_stat,stations,networks=stat_meta(wd,stations[unstat],networks[unstat],evtimes=evtimes,mode="all",write=False,routingclient=client_name,rclient=rclient)
+    inventory,missing_stat,stations,networks=stat_meta(wd,stations[unstat],networks[unstat],evtimes=evtimes,mode="all",write=False,routername=client_name,rclient=rclient)
 
     missing_BH=[x for x in missing_events if x[3] == "BH"]
     missing_HH=np.asarray([x for x in missing_events if x[3] == "HH"])

@@ -23,13 +23,14 @@ Not all data centres have implemented fdsnws_fetch. Instead the default backend 
 
 ## Installation
 
-### For fdsn_fetch backend
+### For fdsnws_fetch backend
 Open your preferred python environment
 ```python
 pip install fdsnwsscripts
 ```
 
-### For arclink_fetch backend 
+### For arclink_fetch backend
+### arclink_fetch is depreciated. Use fdsnws_fetch instead
 [Download the standalone client from here](https://www.seiscomp3.org/download.html)
 
 Open your preferred python environment (so arclink_fetch is installed where you will be using python)
@@ -54,13 +55,13 @@ Other:
 * m2crypto (not required for Z3 but required for ZS)
 
 ## Restricted data (Z3 etc.)
-### fdsn_fetch (not fully implemented)
-1. Get an invite from the Alparray group
-2. Visit [here](https://geofon.gfz-potsdam.de/eas/) and request a token 
-3. You will be asked to log in. If you haven't registered yet select "Register a new account"
-4. Select "Create B2ACCESS account (username only)"
-5. Fill in your details selecting "EPOS" under "Apply for membership"
-6. Request to be added to AlpArray by an administrator
+### fdsnws_fetch
+1. Visit [here](https://geofon.gfz-potsdam.de/eas/) and request a token 
+2. You will be asked to log in. If you haven't registered yet select "Register a new account"
+3. Select "Create B2ACCESS account (username only)"
+4. Fill in your details selecting "EPOS" under "Apply for membership"
+5. Verify that you are on the [list of approved users](http://www.alparray.ethz.ch/en/seismic_network/backbone/management/)
+6. Request to be added to AlpArray by an administrator ([heimers@sed.ethz.ch](mailto:heimers@sed.ethz.ch) or [jclinton@sed.ethz.ch](mailto:jclinton@sed.ethz.ch)). 
 7. Return to [here](https://geofon.gfz-potsdam.de/eas/), log in, and request the token
 8. Save the token in ~/.eidatoken 
 9. fdsnws_fetch will automatically read the token
