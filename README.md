@@ -4,7 +4,7 @@
 
 # Important:
 
-## A bug causes back azimuths and incidence angles to be off by several degrees. For previously downloaded events these should be corrected before rotating
+## A bug caused back azimuths and incidence angles to be off by several degrees. For previously downloaded events these should be corrected before rotating
 
 ## About
 
@@ -61,7 +61,7 @@ Other:
 3. Select "Create B2ACCESS account (username only)"
 4. Fill in your details selecting "EPOS" under "Apply for membership"
 5. Verify that you are on the [list of approved users](http://www.alparray.ethz.ch/en/seismic_network/backbone/management/)
-6. Request to be added to AlpArray by an administrator ([heimers@sed.ethz.ch](mailto:heimers@sed.ethz.ch) or [jclinton@sed.ethz.ch](mailto:jclinton@sed.ethz.ch)). 
+6. Request to be added to AlpArray by an administrator ([heimers AT sed.ethz.ch](mailto:heimers@sed.ethz.ch) or [jclinton AT sed.ethz.ch](mailto:jclinton@sed.ethz.ch)). 
 7. Return to [here](https://geofon.gfz-potsdam.de/eas/), log in, and request the token
 8. Save the token in ~/.eidatoken 
 9. fdsnws_fetch will automatically read the token
