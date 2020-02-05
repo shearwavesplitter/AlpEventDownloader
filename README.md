@@ -1,6 +1,6 @@
-# AlpEventDownloader
+# AlpEventDownloader 1.2
 
-## Requires python version 2.8
+## Requires python version 2.7
 
 ## About
 
@@ -25,6 +25,7 @@ pip install fdsnwsscripts
 ```
 
 ### Other requirements
+* python2.7
 * obspy v1.1
 
 Misc. packages (should be included with standard obspy installation)
@@ -46,7 +47,7 @@ Other:
 5. Verify that you are on the [list of approved users](http://www.alparray.ethz.ch/en/seismic_network/backbone/management/)
 6. Request to be added to AlpArray by an administrator ([heimers AT sed.ethz.ch](mailto:heimers@sed.ethz.ch) or [jclinton AT sed.ethz.ch](mailto:jclinton@sed.ethz.ch)). 
 7. Return to [here](https://geofon.gfz-potsdam.de/eas/), log in, and request the token
-8. Save the token in ~/.eidatoken 
+8. Save the token as ~/.eidatoken 
 9. fdsnws_fetch will automatically read the token
 
 ## How to run
