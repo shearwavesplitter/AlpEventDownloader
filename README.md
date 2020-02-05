@@ -1,16 +1,12 @@
 # AlpEventDownloader
 
-## Requires python version 2.7
-
-# Important:
-
-## A bug caused back azimuths and incidence angles to be off by several degrees. For previously downloaded events these should be corrected before rotating
+## Requires python version 2.8
 
 ## About
 
-This script/functions act as a wrapper for the new fdsnws_fetch which is replacing arclink_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
+This script/functions act as a wrapper for the new fdsnws_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
-Not all data centres have implemented fdsnws_fetch. Instead the default backend is arclink_fetch.
+Arclink_fetch is now depreciated but can still can be still enabled in download_events_functions.py.
 
 ### Advantages
 * Allows restricted data to be downloaded
@@ -23,22 +19,9 @@ Not all data centres have implemented fdsnws_fetch. Instead the default backend 
 
 ## Installation
 
-### For fdsnws_fetch backend
 Open your preferred python environment
 ```python
 pip install fdsnwsscripts
-```
-
-### For arclink_fetch backend
-### arclink_fetch is depreciated. Use fdsnws_fetch instead
-[Download the standalone client from here](https://www.seiscomp3.org/download.html)
-
-Open your preferred python environment (so arclink_fetch is installed where you will be using python)
-
-Install. e.g. for Ubuntu:
-```bash
-sudo dpkg -i ~/arclinkfetch_2015.300_all.deb 
-sudo apt-get install -f
 ```
 
 ### Other requirements
@@ -65,9 +48,6 @@ Other:
 7. Return to [here](https://geofon.gfz-potsdam.de/eas/), log in, and request the token
 8. Save the token in ~/.eidatoken 
 9. fdsnws_fetch will automatically read the token
-
-### arclink_fetch
-1. Set the arclink_fetch parameter to your keyword (uniquely provided to each AASN Core Member)
 
 ## How to run
 
@@ -98,6 +78,7 @@ The part of the code that corrects ZNE rotations hasn't been thoroughly tested y
 * user2 is set to 1 if the rotation was successful (otherwise 0). 
 Most failures to rotate will occur due to nan values in the trace (i.e. traces of different lengths) causing an unrotated trace to be written to file (with the header user2=0).
 The correct azimuths in the .csv file are provided by Gesa Petersen and are calculated from Rayleigh wave polarisations.
+
 ## Optional modes:
 
 **all**

@@ -10,21 +10,11 @@ from obspy import UTCDateTime
 #View readme for further instructions
 
 #############Main parameters
-
-#Backend (Set to True for fdsn_fetch or False for arclink_fetch (currently only arclink_fetch works 100%)
-fdsn=False
-
-#arclink_fetch token used for accessing restricted data (used if fdsn=False) or email for other networks (requires dcidpasswords.txt to be set)
-arclink_token="1235_gfz"
-##dcidpasswords location (if data requires decryption
-dcidpath='/data/home/mroczek/dcidpasswords.txt'
-
 #Working directory where data will be saved (requires the trailing "/")
 wd='/data/home/mroczek/Dropbox/alpevent/'
 
 #Directory containing the functions document
-fd="/data/home/mroczek/AlpEventDownloader/dowload_events_functions.py"
-
+fd="/data/home/mroczek/AlpEventDownloader/download_events_functions.py"
 
 ###########EVENTS###################
 #Path to the events csv file

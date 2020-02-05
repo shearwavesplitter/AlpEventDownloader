@@ -329,7 +329,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
         rstats=[x[1] for x in run]
         rnets=[x[2] for x in run]
         if fdsn:
-            cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+            cmd="fdsnws_fetch -f -z "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
         else:
             if dcidpath == None:
                 cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
@@ -581,7 +581,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             file.write(pasteR(line))
             file.close()
             if fdsn:
-                cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+                cmd="fdsnws_fetch -f -z "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
             else:
                 if dcidpath == None:
                     cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
@@ -1028,6 +1028,16 @@ def verify_missing(wd):
 
 
 ###And run the program
+
+#No longer use arclink_fetch
+fdsn=True
+
+#Depreciated arclink parameters
+#arclink_fetch token used for accessing restricted data (used if fdsn=False) or email for other networks (requires dcidpasswords.txt to be set)
+arclink_token="1235_gfz"
+##dcidpasswords location (if data requires decryption
+dcidpath='/data/home/mroczek/dcidpasswords.txt'
+
 
 #Check that none of the missing_events haven't already been completed
 if mode == "retry":
