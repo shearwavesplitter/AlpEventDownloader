@@ -105,29 +105,9 @@ mode="continue"
 
 
 ###########
-##Source functions
+##Source functions and start download
 if sys.version_info[0] >= 3:
     #exec(open(fd).read())
     raise Exception("Requires python 2.7")
 else:
     execfile(fd)
-
-###Read events csv
-##
-evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl,starttime=starttime,endtime=endtime)
-
-###Read stations csv
-stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
-##
-
-###Populate * wild card
-stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS,routername=client_name,rclient=rclient,c_inv=c_inv)
-##
-
-###Read station metadata
-inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode,routername=client_name,rclient=rclient,c_inv=c_inv)
-##
-
-###Begin download
-comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient,retry_network=network,includeZS=includeZS)
-##

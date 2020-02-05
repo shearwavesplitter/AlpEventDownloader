@@ -16,7 +16,9 @@ import time
 from obspy.signal import rotate 
 from obspy.clients.fdsn import Client
 from obspy import Stream
+import glob
 import string
+
 ###Paste function for creating .csv
 def pasteR(vector,sep=" "):
     s=str(vector[0])
@@ -928,11 +930,26 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
             evl=evl1[0]
             restat=[line[1]]
             renet=[line[2]]
-            rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
-            new_missing_list.append(rt)
-            if (rt[4] == 'no_data' or rt[4] == 'missing_vals') and (rt[0]+rt[1]+rt[2]) in HHmerged:
-                rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
-                new_missing_list.append(rtt)
+            gls=glob.glob(wd+"data/*"+evl[0]+"/*"+renet[0]+"."+restat[0]+"*")
+            if not len(gls) == 3:
+                rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
+                new_missing_list.append(rt)
+                if rt[4] == "completed":
+                    file = open(wd+"completed_events","a+") 
+                    file.write(pasteR(rt,sep=",")+"\n")
+                    file.close()
+                if (rt[4] == 'no_data' or rt[4] == 'missing_vals') and (rt[0]+rt[1]+rt[2]) in HHmerged:
+                    rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
+                    new_missing_list.append(rtt)
+                    if rtt[4] == "completed":
+                        file = open(wd+"completed_events","a+") 
+                        file.write(pasteR(rtt,sep=",")+"\n")
+                        file.close()
+            else:
+                print("Event already downloaded!")
+                file = open(wd+"completed_events","a+") 
+                file.write(evl[0]+","+restat[0]+","+renet[0]+","+gls[0][-7:-5]+",completed\n")
+                file.close()
 
     failure_list = [x for x in new_missing_list if not x[4] == 'completed']
     completed_list = [x for x in new_missing_list if x[4] == 'completed']
@@ -946,11 +963,7 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
         file.write(pasteR(l,sep=",")+"\n")
     file.close()
 
-    file = open(wd+"completed_events","a+") 
-    for l in completed_list:
-        file.write(pasteR(l,sep=",")+"\n")
-    file.close()
-    return(completed_list,failure_list)
+
 
 #removes traces with bad sampling rates before merging
 def merge_safe(ms):
@@ -980,3 +993,63 @@ def merge_safe(ms):
                 ms.remove(tr)
     ms.merge(fill_value="interpolate")
     return(ms)
+
+
+def verify_missing(wd):
+    missing_events=[]
+    with open(wd+"missing_events", 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        ss=[missing_events.append(x) for x in reader]
+
+    completed_events=[]
+    with open(wd+"completed_events", 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        ss=[completed_events.append(x) for x in reader]
+
+    comp_merge=[completed_events[x][0]+completed_events[x][1]+completed_events[x][2] for x in np.arange(len(completed_events))]
+    miss_merge=[missing_events[x][0]+missing_events[x][1]+missing_events[x][2] for x in np.arange(len(missing_events))]
+    comp_merge.sort()
+    miss_merge.sort()
+    
+    new_miss=[]
+    for i,x in enumerate(missing_events):
+        if len(comp_merge) > 0:
+            if not miss_merge[i] == comp_merge[0]:
+                new_miss.append(x)
+            else:
+                del comp_merge[0]
+        else:
+            new_miss.append(x)
+
+    file = open(wd+"missing_events","a+") 
+    for l in new_miss:
+        file.write(pasteR(l,sep=",")+"\n")
+    file.close()
+
+
+###And run the program
+
+#Check that none of the missing_events haven't already been completed
+if mode == "retry":
+    verify_missing(wd)
+
+###Read events csv
+##
+evmat,evtimes=read_eventcsv(eventcsv,minmag=minmag,cnames=cnames,useclient=useclient,cl=cl,starttime=starttime,endtime=endtime)
+
+###Read stations csv
+stations,networks=read_stationcsv(stationcsv,usestatclient=usestatclient)
+##
+
+###Populate * wild card
+stations,networks=populate(stations,networks,evtimes,usestatclient=usestatclient,network=network,minlatitude=minlatitude,minlongitude=minlongitude,maxlatitude=maxlatitude,maxlongitude=maxlongitude,includeZS=includeZS,routername=client_name,rclient=rclient,c_inv=c_inv)
+##
+
+###Read station metadata
+inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=evtimes,mode=mode,routername=client_name,rclient=rclient,c_inv=c_inv)
+##
+
+
+###Begin download
+comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient,retry_network=network,includeZS=includeZS)
+##
