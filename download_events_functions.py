@@ -329,7 +329,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
         rstats=[x[1] for x in run]
         rnets=[x[2] for x in run]
         if fdsn:
-            cmd="fdsnws_fetch -f -z "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+            cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
         else:
             if dcidpath == None:
                 cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
@@ -581,7 +581,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
             file.write(pasteR(line))
             file.close()
             if fdsn:
-                cmd="fdsnws_fetch -f -z "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
+                cmd="fdsnws_fetch -f "+wd+reqname+" "+"-o"+" "+wd+reqname+".mseed"
             else:
                 if dcidpath == None:
                     cmd="arclink_fetch -k mseed4k -o "+wd+reqname+".mseed -u "+arclink_token+" -v "+wd+reqname
@@ -1006,25 +1006,21 @@ def verify_missing(wd):
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         ss=[completed_events.append(x) for x in reader]
 
-    comp_merge=[completed_events[x][0]+completed_events[x][1]+completed_events[x][2] for x in np.arange(len(completed_events))]
-    miss_merge=[missing_events[x][0]+missing_events[x][1]+missing_events[x][2] for x in np.arange(len(missing_events))]
-    comp_merge.sort()
-    miss_merge.sort()
-    
-    new_miss=[]
-    for i,x in enumerate(missing_events):
-        if len(comp_merge) > 0:
-            if not miss_merge[i] == comp_merge[0]:
-                new_miss.append(x)
-            else:
-                del comp_merge[0]
-        else:
-            new_miss.append(x)
+    comp_merge=np.asarray([completed_events[x][0]+completed_events[x][1]+completed_events[x][2]+completed_events[x][3] for x in np.arange(len(completed_events))])
+    miss_merge=np.asarray([missing_events[x][0]+missing_events[x][1]+missing_events[x][2]+missing_events[x][3] for x in np.arange(len(missing_events))])
+    setd=np.asarray(list(set(miss_merge)-set(comp_merge)))
 
-    file = open(wd+"missing_events","a+") 
+    missing_events=np.asarray(missing_events)
+    new_miss=[]
+    for i,x in enumerate(setd):
+        new_miss.append(missing_events[miss_merge == x][0])
+
+    file = open(wd+"missing_events","w") 
     for l in new_miss:
         file.write(pasteR(l,sep=",")+"\n")
     file.close()
+
+
 
 
 ###And run the program
@@ -1040,8 +1036,9 @@ dcidpath='/data/home/mroczek/dcidpasswords.txt'
 
 
 #Check that none of the missing_events haven't already been completed
-if mode == "retry":
-    verify_missing(wd)
+#This should only be run if you suspect that missing_events is out of date (e.g. because retry mode failed before finishing)
+#if mode == "retry":
+#    verify_missing(wd)
 
 ###Read events csv
 ##
@@ -1063,3 +1060,4 @@ inventory,missing_stat,stations,networks=stat_meta(wd,stations,networks,evtimes=
 ###Begin download
 comp,fail=dl_BH_HH(evmat,wd=wd,stations=stations,networks=networks,inv=inventory,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mode=mode,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient,retry_network=network,includeZS=includeZS)
 ##
+
