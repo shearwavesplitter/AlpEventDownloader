@@ -250,7 +250,7 @@ def stat_meta(wd,stations,networks,evtimes,routername="eida-routing",rclient=Tru
 
 ##Main download function
 
-def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,rclient=True):
+def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=True,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,rclient=True):
     model = TauPyModel(model=mod)
     failure=[]
     failure3=[]
@@ -793,7 +793,7 @@ def dl_event(evline,wd,stations,networks,inv,component="BH",minepi=30,maxepi=95,
     return(failure)
 
 
-def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
+def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,mode="continue",fdsn=True,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
     if mode == "retry":
         evtimes=np.asarray([x[1] for x in evmat])
         completed_list,failure_list=retry_download(wd,evmat,evtimes,minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,mod=model,fdsn=fdsn,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,client_name=client_name,rclient=rclient,retry_network=retry_network,includeZS=includeZS)
@@ -851,7 +851,7 @@ def dl_BH_HH(evmat,wd,stations,networks,inv,component="BH",minepi=35,maxepi=95,w
         file.close()
     return(completed_list,failure_list)
 
-def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=False,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
+def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="event",mod="iasp91",phase="P",flo=0.03,fhi=2,fdsn=True,arclink_token="1234_gfz",downsample=True,rotrt="ZNE->LQT",dcidpath=None,rotzne=False,znepath=None,routing=None,client_name="eida-routing",rclient=True,retry_network="*",includeZS=True):
     ###Attempt missing stations
     missing=[]
     with open(wd+"missing_stations", 'r') as csvfile:
@@ -932,14 +932,14 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
             renet=[line[2]]
             gls=glob.glob(wd+"data/*"+evl[0]+"/*"+renet[0]+"."+restat[0]+"*")
             if not len(gls) == 3:
-                rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
+                rt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="BH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient,fdsn=fdsn)[0]
                 new_missing_list.append(rt)
                 if rt[4] == "completed":
                     file = open(wd+"completed_events","a+") 
                     file.write(pasteR(rt,sep=",")+"\n")
                     file.close()
                 if (rt[4] == 'no_data' or rt[4] == 'missing_vals') and (rt[0]+rt[1]+rt[2]) in HHmerged:
-                    rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient)[0]
+                    rtt=dl_event(evl,wd=wd,stations=restat,networks=renet,inv=inventory,component="HH",minepi=minepi,maxepi=maxepi,ws=ws,we=we,sortby=sortby,flo=flo,fhi=fhi,arclink_token=arclink_token,phase=phase,downsample=downsample,rotrt=rotrt,dcidpath=dcidpath,rotzne=rotzne,znepath=znepath,routing=routing,rclient=rclient,fdsn=fdsn)[0]
                     new_missing_list.append(rtt)
                     if rtt[4] == "completed":
                         file = open(wd+"completed_events","a+") 
