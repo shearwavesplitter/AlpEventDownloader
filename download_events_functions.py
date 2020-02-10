@@ -962,6 +962,8 @@ def retry_download(wd,evmat,evtimes,minepi=35,maxepi=95,ws=-10,we=50,sortby="eve
     for l in epi_events:
         file.write(pasteR(l,sep=",")+"\n")
     file.close()
+    
+    return(failure_list,completed_list)
 
 
 
@@ -1008,12 +1010,12 @@ def verify_missing(wd):
 
     comp_merge=np.asarray([completed_events[x][0]+completed_events[x][1]+completed_events[x][2]+completed_events[x][3] for x in np.arange(len(completed_events))])
     miss_merge=np.asarray([missing_events[x][0]+missing_events[x][1]+missing_events[x][2]+missing_events[x][3] for x in np.arange(len(missing_events))])
-    setd=np.asarray(list(set(miss_merge)-set(comp_merge)))
 
-    missing_events=np.asarray(missing_events)
     new_miss=[]
-    for i,x in enumerate(setd):
-        new_miss.append(missing_events[miss_merge == x][0])
+    for i,x in enumerate(miss_merge):
+        if not x in comp_merge:
+            ln=missing_events[i]
+            new_miss.append(ln)
 
     file = open(wd+"missing_events","w") 
     for l in new_miss:
