@@ -3,24 +3,24 @@ import sys
 from obspy import UTCDateTime
 #requires python version2.7
 #Requires fdsnwsscripts for fdsn=True (pip install fdsnwsscripts)
-#Requires standalone arclink_fetch client for fdsn=False
+#arclink_fetch client no longer works
 #Create a working directory
-#Update paths
+#Update paths and options (default is to download example events from example stations)
 #Run script
 #View readme for further instructions
 
 #############Main parameters
 #Working directory where data will be saved (requires the trailing "/")
-wd='/data/home/mroczek/Dropbox/alpevent/'
+wd='/home/stefan/alpevent/'
 
 #Directory containing the functions document
-fd="/data/home/mroczek/AlpEventDownloader/download_events_functions.py"
+fd="/home/stefan/AlpEventDownloader/download_events_functions.py"
 
 ###########EVENTS###################
 #Path to the events csv file
-eventcsv='/data/home/mroczek/AlpEventDownloader/example_events.csv'
+eventcsv='/home/stefan/AlpEventDownloader/example_events.csv'
 ##OR using an available catalog
-useclient=True
+useclient=False
 cl="USGS"
 starttime=UTCDateTime("2009-01-01")
 endtime=UTCDateTime("2018-12-01")
@@ -35,12 +35,12 @@ client_name="eida-routing"
 #Is this a routing client?
 rclient=True
 #Path to the stations csv file. Note: A "*" entry means download all stations available for that network (_ALPARRAY if no network name is provided)
-stationcsv='/data/home/mroczek/AlpEventDownloader/example_stations.csv'
+stationcsv='/home/stefan/AlpEventDownloader/example_stations.csv'
 network="_ALPARRAY"
 #Set c_inv equal to an obspy inventory (e.g. from read_inventory or get_stations) if you want to use your own station inventory rather than download a new one
 c_inv=[]
 #Or get stations from client in lat/longbox (leave True if using c_inv)
-usestatclient=True
+usestatclient=False
 network="_ALPARRAY"
 minlatitude=-90
 minlongitude=-180
@@ -93,11 +93,6 @@ model="iasp91"
 mode="continue"
 
 
-
 ###########
 ##Source functions and start download
-if sys.version_info[0] >= 3:
-    #exec(open(fd).read())
-    raise Exception("Requires python 2.7")
-else:
-    execfile(fd)
+execfile(fd)
