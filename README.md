@@ -1,12 +1,10 @@
-# AlpEventDownloader 1.2
-
-## Requires python version 2.7
+# AlpEventDownloader 1.3
 
 ## About
 
 This script/functions act as a wrapper for the new fdsnws_fetch. Its main purpose is to list the stations and events for which data is missing or incomplete.  
 
-Arclink_fetch is now depreciated but can still can be still enabled in download_events_functions.py.
+Arclink_fetch no longer functions
 
 ### Advantages
 * Allows restricted data to be downloaded
@@ -25,8 +23,7 @@ pip install fdsnwsscripts
 ```
 
 ### Other requirements
-* python2.7
-* obspy v1.1
+* obspy
 
 Misc. packages (should be included with standard obspy installation)
 * numpy1.15
