@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 import sys
 from obspy import UTCDateTime
 #requires python version2.7
@@ -95,4 +95,4 @@ mode="continue"
 
 ###########
 ##Source functions and start download
-execfile(fd)
+exec(open(fd).read())
